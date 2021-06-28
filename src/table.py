@@ -28,6 +28,9 @@ class Tabla():
     def get_rows(self, html, ncols):
         body = html.find(self.body)
         body_rows = soup.data_rows_to_list(body)
+        if ncols == None:
+            lens = list(map(len,body_rows))
+            ncols = max(set(lst), key=lst.count)
         body_rows = list(
             itertools.dropwhile(
                 lambda x:len(x) != ncols,
@@ -50,8 +53,14 @@ class Tabla():
         ncols = len(header)
         if self.ncols is not None:
             ncols = self.ncols
-        body = self.get_rows(html, ncols)
-        return pd.DataFrame(body, columns=header)
+        
+        table = html.find("table", attrs={"class": self.table_class})
+        body = self.get_rows(table, ncols)
+        
+        if len(header) != ncols:
+            return pd.DataFrame(body)
+        else:
+            return pd.DataFrame(body, columns=header)
 
 
 def esp_text_to_num_text(text):
