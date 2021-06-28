@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('-q', '--query')
     parser.add_argument('-b', '--body')
     parser.add_argument('-c', '--ncols', type=int)
+    parser.add_argument('-H', '--header_index', type=int, default=0)
     parser.add_argument('rest', nargs=2)
     args = parser.parse_args()
     query = None if not args.query else args.query.split("=")
@@ -42,5 +43,5 @@ if __name__ == '__main__':
     )
     
     print(tab.get_url())
-    data = tab.fetch(0)
+    data = tab.fetch(args.header_index)
     print(data)

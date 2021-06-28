@@ -49,18 +49,19 @@ class Tabla():
         html = BeautifulSoup(self.data, "lxml")
         if self.container:
             html = html.find(self.container[0], attrs={"class": self.container[1]})
-        header = self.get_header(html, header_index)
+        table = html.find("table", attrs={"class": self.table_class})
+        header = self.get_header(table, header_index)
         ncols = len(header)
         if self.ncols is not None:
             ncols = self.ncols
         
-        table = html.find("table", attrs={"class": self.table_class})
         body = self.get_rows(table, ncols)
         
-        if len(header) != ncols:
-            return pd.DataFrame(body)
-        else:
-            return pd.DataFrame(body, columns=header)
+        return pd.DataFrame(body, columns=header)
+        #if len(header) != ncols:
+        #    return pd.DataFrame(body)
+        #else:
+        #    return pd.DataFrame(body, columns=header)
 
 
 def esp_text_to_num_text(text):
@@ -69,6 +70,5 @@ def esp_text_to_num_text(text):
 
 def soup_to_table(table):
     header = soup.head_rows_to_list(table)
-    print(header)
     rows = soup.data_rows_to_list(table)
     width = len(header)
