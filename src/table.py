@@ -1,4 +1,5 @@
 import pandas as pd
+from bs4 import BeautifulSoup
 import itertools
 from src import fetch
 from src import soup
@@ -12,6 +13,7 @@ class Tabla():
         self.header = header
         self.body = body
         self.ncols = ncols
+        self.data = fetch.web_page(self.get_url())
 
     def get_url(self):
         if self.query is None:
@@ -24,27 +26,27 @@ class Tabla():
         return header
 
     def get_rows(self, html, ncols):
-        body = soup.data_rows_to_list(html.find(self.body))
-        body = list(
+        body = html.find(self.body)
+        body_rows = soup.data_rows_to_list(body)
+        body_rows = list(
             itertools.dropwhile(
                 lambda x:len(x) != ncols,
-                body
+                body_rows
             )
         )
-        body = list(
+        body_rows = list(
             itertools.takewhile(
                 lambda x: len(x) == ncols,
-                body
+                body_rows
             )
         )
-        return body
+        return body_rows
 
     def fetch(self, header_index):
-        html = fetch.web_page_soup(self.get_url())
+        html = BeautifulSoup(self.data, "lxml")
         if self.container:
             html = html.find(self.container[0], attrs={"class": self.container[1]})
         header = self.get_header(html, header_index)
-        print(header)
         ncols = len(header)
         if self.ncols is not None:
             ncols = self.ncols
