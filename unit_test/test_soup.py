@@ -30,7 +30,7 @@ table0 = BeautifulSoup("""<table class="tablename">
                 <td colspan="4">Foot Value</td>
             </tr>
         </tfoot>
-    </table>""").find("table", attrs={"class": "tablename"})
+    </table>""", 'lxml').find("table", attrs={"class": "tablename"})
 
 
 
@@ -46,7 +46,7 @@ class TestSoup(unittest.TestCase):
 
     def test_get_table_body(self):
         body = soup.get_table_body(table0)
-        rows = soup.rows_to_list(body)
+        rows = soup.data_rows_to_list(body)
         self.assertEqual(
             rows,
             [['24/06/2020', '0,1', '-', '0,3'], ['06/04/2021', '1,100', '-', '1,300']]
