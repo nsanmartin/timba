@@ -1,0 +1,11 @@
+# Create a python3 environment
+$ python3 -m venv ~/.venv/timba
+
+# Activate environment
+$ source ~/.venv/timba/bin/activate
+
+# install requirements
+$ pip -r requeriments.txt
+
+make tests para correr los unit tests
+python -m script.script_name para correr un script
