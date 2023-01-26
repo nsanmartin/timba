@@ -47,9 +47,12 @@ class Tabla():
 
     def fetch(self, header_index):
         html = BeautifulSoup(self.data, "lxml")
+        
         if self.container:
-            html = html.find(self.container[0], attrs={"class": self.container[1]})
+            tag, classname = self.container
+            html = html.find(tag, attrs={"class": classname})
         table = html.find("table", attrs={"class": self.table_class})
+        raise Exception(table)
         header = self.get_header(table, header_index)
         ncols = len(header)
         if self.ncols is not None:

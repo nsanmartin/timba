@@ -17,17 +17,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fetch a table')
     parser.add_argument('-q', '--query')
     parser.add_argument('-b', '--body')
+    parser.add_argument('-C', '--container')
     parser.add_argument('-c', '--ncols', type=int)
     parser.add_argument('-H', '--header_index', type=int, default=0)
     parser.add_argument('rest', nargs=2)
     args = parser.parse_args()
     query = None if not args.query else args.query.split("=")
+    container = None if not args.container else args.container.split(",")
     body = "tbody" if not args.body else args.body
-
+    
     tab = table.Tabla(
         base_url=args.rest[0],
         query=query,
-        container=None,
+        container=container,
         table_class=args.rest[1],
         header= "thead",
         body=body,

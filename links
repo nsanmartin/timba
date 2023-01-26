@@ -1,0 +1,4 @@
+http://bonos.ecobolsar.com.ar/eco/ticker.php?t=AA25
+http://bonos.ecobolsar.com.ar/eco/listado.php
+python -m scripts.table http://bonos.ecobolsar.com.ar/eco/ticker.php flujofondos -q t=AA25
+python -m scripts.table http://bonos.ecobolsar.com.ar/eco/listado.php tablalistado
