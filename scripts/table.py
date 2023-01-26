@@ -1,8 +1,12 @@
+# run this with
+# $ python -m timba.scripts.table ...
+# from ../timba
+
 import argparse
 import sys
-from src import fetch
-from src import soup
-from src import table
+from timba.src import fetch
+from timba.src import soup
+from timba.src import table
 
 def print_help(cmd):
     print("usage: {} URL TABLE_NAME".format(cmd))

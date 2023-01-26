@@ -1,0 +1,2 @@
+python3 -m timba.scripts.table http://bonos.ecobolsar.com.ar/eco/ticker.php flujofondos -q t=AA25
+python3 -m timba.scripts.table http://bonos.ecobolsar.com.ar/eco/listado.php tablalistado

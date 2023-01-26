@@ -1,8 +1,8 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 import itertools
-from src import fetch
-from src import soup
+from timba.src import fetch
+from timba.src import soup
 
 class Tabla():
     def __init__(self, base_url, query, container, table_class, header, body, ncols=None):
