@@ -7,5 +7,8 @@ $ source ~/.venv/timba/bin/activate
 # install requirements
 $ pip -r requeriments.txt
 
-make tests para correr los unit tests
-python -m script.script_name para correr un script
+# Run unit tests
+$ make tests
+
+# run script
+$ python -m script.script_name
