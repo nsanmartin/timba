@@ -1,0 +1,5 @@
+#!/bin/bash 
+filename="${1##*/}"
+modulename="${filename%.py}"
+shift
+python3 -m scripts.${modulename} "$@"

@@ -39,7 +39,7 @@ def df_map_header(*args):
 
 def df_map_time(df):
     assert_has_column(df, 'time')
-    df['time'] = pd.to_datetime(df['time'], unit='s')
+    df['time'] = pd.to_datetime(df['time'], unit='s').dt.date
 
 def df_set_index_to_time(df):
     assert_has_column(df, 'time')
