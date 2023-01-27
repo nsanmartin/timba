@@ -26,3 +26,18 @@ class TestDataFrame(unittest.TestCase):
         dateix = tdf.DataFrameDateIx(df.copy()) 
         date = pd.to_datetime(1008720000, unit='s').date()
         self.assertEqual(date, dateix.df.index[0])
+
+
+    def test_ctos_symb_cmp(self):
+        x = pd.DataFrame([{
+            'especie': 'YPFD', 'fecha': '2001-12-19', 'apertura': 17, 'maximo': 17, 'minimo': 17,
+            'cierre': 17, 'volumen': 100, 'timestamp': 1008720000
+        }])
+
+        y = pd.DataFrame([{
+            'especie': 'GD30', 'fecha': '2001-12-19', 'apertura': 17, 'maximo': 17, 'minimo': 17,
+            'cierre': 17, 'volumen': 100, 'timestamp': 1008720000
+        }])
+
+        cmp = tdf.DataFrameSymbCmp([x, y])
+        self.assertTrue((cmp.df.columns == ['YPFD', 'GD30']).all())

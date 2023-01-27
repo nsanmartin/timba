@@ -1,14 +1,8 @@
 import pandas as pd
+import os
 
 ## headers for pandas data frames
-# symb
-# open
-# close
-# min
-# max
-# vol
-# date
-# time
+# symb, open, close, min, max, vol, date, time
 
 def standarize_column_name(name):
     name = name.lower()
@@ -67,8 +61,9 @@ def df_standarize(df):
     df_map_time(df)
     df_set_index_to_time(df)
 
-def df_concat_cols(colname, *args):
-    series = [ df[colname].rename(df['symb'][0]) for df in args]
+def df_concat_cols(colname, dfs):
+    #series = [ df[colname].rename(df[colname][0]) for df in dfs]
+    series = [ df[colname].rename(df['symb'][0]) for df in dfs]
     return pd.concat(series, axis=1)
 
 
@@ -83,12 +78,12 @@ class DataFrameRaw():
     def __repr__(self):
         return repr(self.df)
 
+
+class DataFrameStdHead(DataFrameRaw):
     @classmethod
     def fromFilename(cls, fname):
         return cls(pd.read_csv(fname))
 
-
-class DataFrameStdHead(DataFrameRaw):
 
     def __init__(self,dt):
         super().__init__(dt)
@@ -102,3 +97,15 @@ class DataFrameDateIx(DataFrameStdHead):
         super().__init__(df)
         df_map_time(self.df)
         df_set_index_to_time(self.df)
+
+
+class DataFrameSymbCmp(DataFrameRaw):
+    @classmethod
+    def fromDirectory(cls, dirname):
+        fnames = [ dirname + f for f in os.listdir(dirname) if f.endswith(".csv") ]
+        return cls([pd.read_csv(f) for f in fnames]) 
+
+    def __init__(self, dfs):
+        dfs = [ DataFrameDateIx(df).df for df in  dfs]
+        self.df = df_concat_cols('close', dfs)
+
