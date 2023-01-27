@@ -39,5 +39,5 @@ class TestDataFrame(unittest.TestCase):
             'cierre': 17, 'volumen': 100, 'timestamp': 1008720000
         }])
 
-        cmp = tdf.DataFrameSymbCmp([x, y])
+        cmp = tdf.DataFrameSymbCmp.fromDataFrameList([x, y])
         self.assertTrue((cmp.df.columns == ['YPFD', 'GD30']).all())

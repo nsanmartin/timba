@@ -72,8 +72,21 @@ def df_concat_cols(colname, dfs):
 
 class DataFrameRaw():
 
-    def __init__(self, df):
+    @classmethod
+    def copyDataFrame(cls, other):
+        return cls(other.df, initialize = False)
+
+
+    def copy(self):
+        return self.copyDataFrame(self)
+
+    def initialize(self):
+        pass
+
+    def __init__(self, df, initialize = True):
         self.df = df
+        if initialize:
+            self.initialize()
 
     def __repr__(self):
         return repr(self.df)
@@ -85,27 +98,55 @@ class DataFrameStdHead(DataFrameRaw):
         return cls(pd.read_csv(fname))
 
 
-    def __init__(self,dt):
-        super().__init__(dt)
+    def initialize(self):
+        super().initialize()
         df_standarize_header(self.df)
 
 
 
 class DataFrameDateIx(DataFrameStdHead):
 
-    def __init__(self, df):
-        super().__init__(df)
+    def initialize(self):
+        super().initialize()
         df_map_time(self.df)
         df_set_index_to_time(self.df)
 
 
+
 class DataFrameSymbCmp(DataFrameRaw):
+    @classmethod
+    def fromDataFrameList(cls, dfs):
+        dfs = [ DataFrameDateIx(df).df for df in dfs]
+        return cls(df_concat_cols('close', dfs))
+
     @classmethod
     def fromDirectory(cls, dirname):
         fnames = [ dirname + f for f in os.listdir(dirname) if f.endswith(".csv") ]
-        return cls([pd.read_csv(f) for f in fnames]) 
+        return cls.fromDataFrameList([pd.read_csv(f) for f in fnames]) 
 
-    def __init__(self, dfs):
-        dfs = [ DataFrameDateIx(df).df for df in  dfs]
-        self.df = df_concat_cols('close', dfs)
+    def __init__(self, df, initialize=False):
+        # we ignore initialize, it was added to distinguish betweem copy and construct
+        self.df = df
 
+    def getRatiosBetween(self, other):
+        newcols = []
+        newcolnames = []
+        for c_i in self.df.columns:
+            for c_j in other.df.columns:
+                newcols.append(self.df[c_i] / other.df[c_j])
+                newcolnames.append(c_i + "/" + c_j)
+        return pd.concat(newcols, axis=1, keys=newcolnames)
+
+
+    def getRatios(self):
+        cnames = self.df.columns
+        newcols = []
+        newcolnames = []
+        for i in range(len(cnames)):
+            for j in range(i + 1, len(cnames)):
+                c_i = cnames[i]
+                c_j = cnames[j]
+                newcols.append(self.df[c_i] / self.df[c_j])
+                newcolnames.append(c_i + "/" + c_j)
+
+        return pd.concat(newcols, axis=1, keys=newcolnames)
