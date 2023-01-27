@@ -17,13 +17,13 @@ class TestDataFrame(unittest.TestCase):
         }]
         df = pd.DataFrame(data)
 
-        raw = tdf.DataFrameRaw(df.copy())
+        raw = tdf.DataFrameRaw.fromDataFrame(df.copy())
         self.assertTrue((raw.df.columns == df.columns).all())
 
-        stdhead = tdf.DataFrameStdHead(df.copy())
+        stdhead = tdf.DataFrameStdHead.fromDataFrame(df.copy())
         self.assertTrue((stdhead.df.columns == standard_header).all())
 
-        dateix = tdf.DataFrameDateIx(df.copy()) 
+        dateix = tdf.DataFrameDateIx.fromDataFrame(df.copy()) 
         date = pd.to_datetime(1008720000, unit='s').date()
         self.assertEqual(date, dateix.df.index[0])
 

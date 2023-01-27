@@ -1,23 +1,24 @@
 import pandas as pd
 import os
+import datetime as dt
 
 def standarize_column_name(name):
-    name = name.lower()
-    if name == 'especie':
+    lcase = name.lower()
+    if lcase == 'especie':
         return 'Symb'
-    #if name == 'fecha':
+    #if lcase == 'fecha':
     #    return 'Date'
-    if name == 'apertura':
+    if lcase == 'apertura':
         return 'Open'
-    if name == 'cierre':
+    if lcase == 'cierre':
         return 'Close'
-    if name == 'maximo':
+    if lcase == 'maximo':
         return 'High'
-    if name == 'minimo':
+    if lcase == 'minimo':
         return 'Low'
-    if name == 'volumen':
+    if lcase == 'volumen':
         return 'Volume'
-    if name == 'timestamp':
+    if lcase == 'timestamp':
         return 'Date'
     else:
         return name
@@ -69,52 +70,82 @@ def df_concat_cols(colname, dfs):
 ## DataFrame subtypes
 
 class DataFrameRaw():
+    @staticmethod
+    def fromDataFrame(df):
+        if isinstance(df, pd.DataFrame):
+            return DataFrameRaw(df)
+        if isinstance(df, DataFrameRaw):
+            return df
+        else:
+            raise RuntimeError("Expected ps dat frma or raw")
+
 
     @classmethod
     def copyDataFrame(cls, other):
-        return cls(other.df, initialize = False)
+        return cls(other.df)
 
 
     def copy(self):
         return self.copyDataFrame(self)
 
-    def initialize(self):
-        pass
-
-    def __init__(self, df, initialize = True):
+    def __init__(self, df):
+        assert isinstance(df, pd.DataFrame)
         self.df = df
-        if initialize:
-            self.initialize()
 
     def __repr__(self):
         return repr(self.df)
 
 
 class DataFrameStdHead(DataFrameRaw):
+    @staticmethod
+    def fromDataFrame(df):
+        if isinstance(df, DataFrameStdHead):
+            return df
+        elif isinstance(df, DataFrameRaw):
+            df_standarize_header(df.df)
+            return DataFrameStdHead(df.df)
+
+        else:
+            return DataFrameStdHead.fromDataFrame(DataFrameRaw.fromDataFrame(df))
+
+            
     @classmethod
     def fromFilename(cls, fname):
-        return cls(pd.read_csv(fname))
+        return cls.fromDataFrame(pd.read_csv(fname))
 
-
-    def initialize(self):
-        super().initialize()
-        df_standarize_header(self.df)
 
 
 
 class DataFrameDateIx(DataFrameStdHead):
+    @staticmethod
+    def fromDataFrame(df):
+        if isinstance(df, DataFrameDateIx):
+            return df
+        elif isinstance(df, DataFrameStdHead):
+            df_map_time(df.df)
+            df_set_index_to_time(df.df)
+            return DataFrameDateIx(df.df)
+        else:
+            return DataFrameDateIx.fromDataFrame(DataFrameStdHead.fromDataFrame(df))
 
-    def initialize(self):
-        super().initialize()
-        df_map_time(self.df)
-        df_set_index_to_time(self.df)
+    @staticmethod
+    def fromDateIndexed(df, symb=None):
+        if not symb and not 'Symb' in df.columns:
+            raise RuntimeError('Symb is missing!')
+        if type(df.index[0]) !=  dt.date:
+            df.index = df.index.date
+        res = DataFrameDateIx(df)
+        if symb and not 'Symb' in df.columns:
+            res.df['Symb'] = symb
+        return res
 
 
 
 class DataFrameSymbCmp(DataFrameRaw):
     @classmethod
     def fromDataFrameList(cls, dfs):
-        dfs = [ DataFrameDateIx(df).df for df in dfs]
+        dfs = [ DataFrameDateIx.fromDataFrame(df) for df in dfs]
+        dfs = [ x.df for x in dfs]
         return cls(df_concat_cols('Close', dfs))
 
     @classmethod
@@ -122,9 +153,6 @@ class DataFrameSymbCmp(DataFrameRaw):
         fnames = [ dirname + f for f in os.listdir(dirname) if f.endswith(".csv") ]
         return cls.fromDataFrameList([pd.read_csv(f) for f in fnames]) 
 
-    def __init__(self, df, initialize=False):
-        # we ignore initialize, it was added to distinguish betweem copy and construct
-        self.df = df
 
     def getRatiosBetween(self, other):
         newcols = []
