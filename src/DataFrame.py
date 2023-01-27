@@ -10,7 +10,7 @@ import pandas as pd
 # date
 # time
 
-def map_column_name(name):
+def standarize_column_name(name):
     name = name.lower()
     if name == 'especie':
         return 'symb'
@@ -34,9 +34,9 @@ def assert_has_column(df, colname):
     assert colname in df.columns,\
         "df with no '"+ colname +"'. Names are: " + str(list(df.columns))
 
-def df_map_header(*args):
+def df_standarize_header(*args):
     for df in args:
-        df.rename(columns= { k:map_column_name(k) for k in df.columns }, inplace=True)
+        df.rename(columns= { k:standarize_column_name(k) for k in df.columns }, inplace=True)
 
 def df_map_time(df):
     assert_has_column(df, 'time')
@@ -63,7 +63,7 @@ def df_get_ratio(df, colname, invert=False):
         return df[xcol] / df[ycol]
 
 def df_standarize(df):
-    df_map_header(df)
+    df_standarize_header(df)
     df_map_time(df)
     df_set_index_to_time(df)
 
@@ -92,7 +92,7 @@ class DataFrameStdHead(DataFrameRaw):
 
     def __init__(self,dt):
         super().__init__(dt)
-        df_map_header(self.df)
+        df_standarize_header(self.df)
 
 
 
