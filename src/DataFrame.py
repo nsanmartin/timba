@@ -1,6 +1,7 @@
-import pandas as pd
 import os
 import datetime as dt
+import pandas as pd
+import yfinance as yf
 
 def standarize_column_name(name):
     lcase = name.lower()
@@ -132,6 +133,9 @@ class DataFrameDateIx(DataFrameStdHead):
     def fromDateIndexed(df, symb=None):
         if not symb and not 'Symb' in df.columns:
             raise RuntimeError('Symb is missing!')
+        if symb and 'Symb' in df.columns and symb != df['Symb'][0]:
+            raise RuntimeError("Inconsistent Symb!")
+
         if type(df.index[0]) !=  dt.date:
             df.index = df.index.date
         res = DataFrameDateIx(df)
@@ -139,8 +143,14 @@ class DataFrameDateIx(DataFrameStdHead):
             res.df['Symb'] = symb
         return res
 
+    @staticmethod
+    def fromYFinance(symb):
+        df = yf.download(symb)
+        return DataFrameDateIx.fromDateIndexed(df, symb)
 
 
+
+# multi symb data frame
 class DataFrameSymbCmp(DataFrameRaw):
     @classmethod
     def fromDataFrameList(cls, dfs):
@@ -161,7 +171,7 @@ class DataFrameSymbCmp(DataFrameRaw):
             for c_j in other.df.columns:
                 newcols.append(self.df[c_i] / other.df[c_j])
                 newcolnames.append(c_i + "/" + c_j)
-        return pd.concat(newcols, axis=1, keys=newcolnames)
+        return DataFrameSymbCmp(pd.concat(newcols, axis=1, keys=newcolnames))
 
 
     def getRatios(self):
@@ -175,6 +185,6 @@ class DataFrameSymbCmp(DataFrameRaw):
                 newcols.append(self.df[c_i] / self.df[c_j])
                 newcolnames.append(c_i + "/" + c_j)
 
-        return pd.concat(newcols, axis=1, keys=newcolnames)
+        return DataFrameSymbCmp(pd.concat(newcols, axis=1, keys=newcolnames))
 
 

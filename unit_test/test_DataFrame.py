@@ -31,7 +31,7 @@ class TestDataFrame(unittest.TestCase):
     def test_ctos_symb_cmp(self):
         x = pd.DataFrame([{
             'especie': 'YPFD', 'apertura': 17, 'maximo': 17, 'minimo': 17,
-            'cierre': 17, 'volumen': 100, 'timestamp': 1008720000
+            'cierre': 51, 'volumen': 100, 'timestamp': 1008720000
         }])
 
         y = pd.DataFrame([{
@@ -41,3 +41,10 @@ class TestDataFrame(unittest.TestCase):
 
         cmp = tdf.DataFrameSymbCmp.fromDataFrameList([x, y])
         self.assertTrue((cmp.df.columns == ['YPFD', 'GD30']).all())
+
+        ratios = cmp.getRatiosBetween(cmp)
+        ratios_cols = [ 'YPFD/YPFD', 'YPFD/GD30', 'GD30/YPFD', 'GD30/GD30' ]
+        self.assertTrue((ratios.df.columns == ratios_cols).all())
+
+        ratios = cmp.getRatios()
+        self.assertTrue((ratios.df.columns == ['YPFD/GD30']).all())
