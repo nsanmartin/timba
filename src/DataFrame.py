@@ -1,27 +1,26 @@
 import pandas as pd
 import os
 
-## headers for pandas data frames
-# symb, open, close, min, max, vol, date, time
-
 def standarize_column_name(name):
     name = name.lower()
     if name == 'especie':
-        return 'symb'
-    if name == 'fecha':
-        return 'date'
+        return 'Symb'
+    #if name == 'fecha':
+    #    return 'Date'
     if name == 'apertura':
-        return 'open'
+        return 'Open'
     if name == 'cierre':
-        return 'close'
+        return 'Close'
     if name == 'maximo':
-        return 'max'
+        return 'High'
     if name == 'minimo':
-        return 'min'
+        return 'Low'
     if name == 'volumen':
-        return 'vol'
+        return 'Volume'
     if name == 'timestamp':
-        return 'time'
+        return 'Date'
+    else:
+        return name
 
 
 def assert_has_column(df, colname):
@@ -33,12 +32,12 @@ def df_standarize_header(*args):
         df.rename(columns= { k:standarize_column_name(k) for k in df.columns }, inplace=True)
 
 def df_map_time(df):
-    assert_has_column(df, 'time')
-    df['time'] = pd.to_datetime(df['time'], unit='s').dt.date
+    assert_has_column(df, 'Date')
+    df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
 
 def df_set_index_to_time(df):
-    assert_has_column(df, 'time')
-    df.set_index('time', inplace=True)
+    assert_has_column(df, 'Date')
+    df.set_index('Date', inplace=True)
 
 
 def df_merge_on(x, y, colname):
@@ -62,7 +61,7 @@ def df_standarize(df):
     df_set_index_to_time(df)
 
 def df_concat_cols(colname, dfs):
-    series = [ df[colname].rename(df['symb'][0]) for df in dfs]
+    series = [ df[colname].rename(df['Symb'][0]) for df in dfs]
     return pd.concat(series, axis=1)
 
 
@@ -116,7 +115,7 @@ class DataFrameSymbCmp(DataFrameRaw):
     @classmethod
     def fromDataFrameList(cls, dfs):
         dfs = [ DataFrameDateIx(df).df for df in dfs]
-        return cls(df_concat_cols('close', dfs))
+        return cls(df_concat_cols('Close', dfs))
 
     @classmethod
     def fromDirectory(cls, dirname):
