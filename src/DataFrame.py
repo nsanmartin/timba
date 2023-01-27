@@ -62,7 +62,6 @@ def df_standarize(df):
     df_set_index_to_time(df)
 
 def df_concat_cols(colname, dfs):
-    #series = [ df[colname].rename(df[colname][0]) for df in dfs]
     series = [ df[colname].rename(df['symb'][0]) for df in dfs]
     return pd.concat(series, axis=1)
 
@@ -150,3 +149,5 @@ class DataFrameSymbCmp(DataFrameRaw):
                 newcolnames.append(c_i + "/" + c_j)
 
         return pd.concat(newcols, axis=1, keys=newcolnames)
+
+
