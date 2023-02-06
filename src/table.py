@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import itertools
 from src import fetch
 from src import soup
+from src import cache
 
 class Tabla():
     def __init__(self, base_url, query, container, table_class, header, body, ncols=None):
@@ -15,7 +16,6 @@ class Tabla():
         # table body tag
         self.body = body
         self.ncols = ncols
-        self.data = fetch.web_page(self.get_url())
 
     def get_url(self):
         if self.query is None:
@@ -51,7 +51,8 @@ class Tabla():
         return body_rows
 
     def fetch(self, header_index):
-        html = BeautifulSoup(self.data, "lxml")
+        data = cache.get_url(self.get_url())
+        html = BeautifulSoup(data, "lxml")
         
         if self.container:
             tag, classname = self.container

@@ -1,12 +1,15 @@
 import sys
 import pandas as pd
 import json
-from src import fetch
+from src import cache
+from src import soup
 
 def run(symb):
-    x = fetch.web_page_soup('https://www.rava.com/perfil/' + symb)
-    assert x
-    perfil_p = x.find("perfil-p")
+    text = cache.get_url('https://www.rava.com/perfil/' + symb, 10000)
+    assert text
+    page = soup.get_soup(text) 
+    assert page
+    perfil_p = page.find("perfil-p")
     assert perfil_p
     res = perfil_p.attrs[':res']
     assert res
