@@ -1,3 +1,5 @@
+from bs4 import BeautifulSoup
+
 def data_rows_to_list(rows):
     return [[c.text for c in r.find_all("td")] for r in rows.find_all("tr")]
 
@@ -12,3 +14,7 @@ def get_table_body(table):
 
 def get_table(doc, class_name):
     return doc.find("table", attrs={"class": class_name})
+
+def get_soup(text):
+    return BeautifulSoup(text, "lxml")
+

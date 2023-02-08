@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import itertools
 from src import fetch
 from src import soup
+from src import cache
 
 class Tabla():
     def __init__(self, base_url, query, container, table_class, header, body, ncols=None):
@@ -10,10 +11,11 @@ class Tabla():
         self.query = query
         self.container = container
         self.table_class = table_class
+        # table header tag
         self.header = header
+        # table body tag
         self.body = body
         self.ncols = ncols
-        self.data = fetch.web_page(self.get_url())
 
     def get_url(self):
         if self.query is None:
@@ -27,6 +29,9 @@ class Tabla():
 
     def get_rows(self, html, ncols):
         body = html.find(self.body)
+        if not body:
+            raise RuntimeError("Incorrect body tag: {} for table.".format(self.body))
+
         body_rows = soup.data_rows_to_list(body)
         if ncols == None:
             lens = list(map(len,body_rows))
@@ -46,13 +51,19 @@ class Tabla():
         return body_rows
 
     def fetch(self, header_index):
-        html = BeautifulSoup(self.data, "lxml")
+        data = cache.get_url(self.get_url())
+        html = BeautifulSoup(data, "lxml")
         
         if self.container:
             tag, classname = self.container
             html = html.find(tag, attrs={"class": classname})
         table = html.find("table", attrs={"class": self.table_class})
-        raise Exception(table)
+
+        if not table:
+            raise RuntimeError("Incorrect class attr for table: {}.".format(
+                self.table_class
+            ))
+
         header = self.get_header(table, header_index)
         ncols = len(header)
         if self.ncols is not None:

@@ -15,7 +15,7 @@ def run(url, table_name):
     print("url: {} table: {}".format(url, table_name))
     tab = table.Tabla(url, None, None, table_name,  "thead", "tbdoy")
     data = tab.fetch(0)
-    print(data)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fetch a table')
@@ -28,7 +28,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     query = None if not args.query else args.query.split("=")
     container = None if not args.container else args.container.split(",")
-    body = "tbody" if not args.body else args.body
+    #body = "tbody" if not args.body else args.body
+    body = "tbdoy" if not args.body else args.body
     
     tab = table.Tabla(
         base_url=args.rest[0],
@@ -40,6 +41,5 @@ if __name__ == '__main__':
         ncols=args.ncols
     )
     
-    print(tab.get_url())
     data = tab.fetch(args.header_index)
     print(data)
