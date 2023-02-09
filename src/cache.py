@@ -1,8 +1,13 @@
 from src import fetch
 from pathlib import Path
 import datetime as dt
+import requests
 
-CACHE_PATH = str(Path.home()) + '/.timba/'
+CACHE_PATH = str(Path.home()) + '/.timba/cache/'
+
+def get_bearer_token():
+    with open(CACHE_PATH + "bearer_token") as f:
+        return f.read().strip()
 
 def url_to_cache_path(url):
     return Path(CACHE_PATH + url.replace('//', '/'))
@@ -29,3 +34,17 @@ def get_url(url, expiration_time=None):
         path.write_text(content)
         return content
 
+
+def get_post(symb, endpoint, data, headers, expiration_time=None):
+    path = url_to_cache_path(endpoint + "/" + symb)
+    if cache_is_valid(path, expiration_time):
+        with open(path) as f:
+            return f.read()
+    else: 
+        print("fetching " + endpoint)
+        print(data)
+        print(headers)
+        content = requests.post(endpoint, data=data, headers=headers).text
+        path.parent.mkdir(exist_ok=True, parents=True)
+        path.write_text(content)
+        return content

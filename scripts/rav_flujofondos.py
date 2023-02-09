@@ -4,8 +4,11 @@ import json
 from src import cache
 from src import soup
 
+one_day = 60 * 60 * 24
+one_year = one_day * 365
+
 def run(symb):
-    text = cache.get_url('https://www.rava.com/perfil/' + symb, 10000)
+    text = cache.get_url('https://www.rava.com/perfil/' + symb, one_year * 3)
     assert text
     page = soup.get_soup(text) 
     assert page
@@ -21,6 +24,7 @@ def run(symb):
     df = pd.DataFrame(flujofondos)
     df.fillna(0, inplace=True)
     print (df)
+    print(df.sum(axis=0, numeric_only=True))
 
 if __name__ == "__main__":
     for symb in sys.argv[1:]:
