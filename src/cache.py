@@ -2,12 +2,16 @@ from src import fetch
 from pathlib import Path
 import datetime as dt
 import requests
+import json
+
 
 CACHE_PATH = str(Path.home()) + '/.timba/cache/'
 
-def get_bearer_token():
-    with open(CACHE_PATH + "bearer_token") as f:
-        return f.read().strip()
+def get_data_for(url):
+    path = CACHE_PATH + 'data/' + url
+    with open(path) as f:
+        return json.load(f)
+    
 
 def url_to_cache_path(url):
     return Path(CACHE_PATH + url.replace('//', '/'))

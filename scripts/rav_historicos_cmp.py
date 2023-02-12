@@ -18,4 +18,8 @@ def run(symbs):
 
 
 if __name__ == "__main__":
-    run(sys.argv[1:])
+    if len(sys.argv) < 3:
+        print("At least 2 symbols are needed to compare")
+        print("Given: {}".format(sys.argv[1:]))
+    else:
+        run(sys.argv[1:])
