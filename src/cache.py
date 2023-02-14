@@ -7,15 +7,16 @@ import json
 import os.path
 
 
-CACHE_PATH = str(Path.home()) + '/.timba/cache/'
+TIMBA_PATH = str(Path.home()) + '/.timba/'
+CACHE_PATH = TIMBA_PATH + 'cache/'
 
 def get_data_for(url):
-    path = CACHE_PATH + 'data/' + url
+    path = TIMBA_PATH + 'data/' + url
     with open(path) as f:
         return json.load(f)
     
 def get_headers_for(url):
-    path = CACHE_PATH + 'headers/' + url
+    path = TIMBA_PATH + 'headers/' + url
     if os.path.isfile(path):
         with open(path) as f:
             return json.load(f)
@@ -23,7 +24,7 @@ def get_headers_for(url):
     
 
 def url_to_cache_path(url):
-    return Path(CACHE_PATH + url.replace('//', '/'))
+    return Path(CACHE_PATH + url.replace('//', '/') + '$')
 
 def time_has_expired(time):
     return time < dt.datetime.now().timestamp()
@@ -63,6 +64,7 @@ def fetch_url_get(url, headers, response_mapping, expiration):
                 raise RuntimeError(msg) from e
         except requests.exceptions.InvalidSchema as e:
             raise RuntimeError("Error fetching url: " + url) from e
+
 
 def fetch_url_post(file, endpoint, headers, data, response_mapping, expiration):
     path = url_to_cache_path(endpoint + "/" + file)
