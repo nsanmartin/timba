@@ -78,7 +78,7 @@ class DataFrameRaw():
         if isinstance(df, DataFrameRaw):
             return df
         else:
-            raise RuntimeError("Expected ps dat frma or raw")
+            raise RuntimeError("Expected df of type timba.DataFrame or timba.DataFrameRaw")
 
 
     @classmethod

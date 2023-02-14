@@ -7,6 +7,8 @@ import sys
 from src import fetch
 from src import soup
 from src import table
+from src import cache
+from urllib.parse import urlparse
 
 def print_help(cmd):
     print("usage: {} URL TABLE_NAME".format(cmd))
@@ -24,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('-C', '--container')
     parser.add_argument('-c', '--ncols', type=int)
     parser.add_argument('-H', '--header_index', type=int, default=0)
+    parser.add_argument('-e', '--expiration', type=int, default=60*60)
     parser.add_argument('rest', nargs=2)
     args = parser.parse_args()
     query = None if not args.query else args.query.split("=")
@@ -41,5 +44,6 @@ if __name__ == '__main__':
         ncols=args.ncols
     )
     
-    data = tab.fetch(args.header_index)
+    headers = cache.get_headers_for(urlparse(tab.get_url()).netloc)
+    data = tab.fetch(args.header_index, headers, args.expiration)
     print(data)

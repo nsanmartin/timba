@@ -8,6 +8,16 @@ import datetime as dt
 
 one_day = 60 * 60 * 24
 
+def response_mapping(text):
+    assert text
+    resJson = json.loads(text)
+    assert(resJson)
+    mapFlujosDTO = resJson['mapFlujosDTO']
+    assert mapFlujosDTO
+    return [pd.DataFrame(v) for k, v in mapFlujosDTO.items()][0]
+
+
+
 def run(symb):
     endpoint = 'https://www.puentenet.com/herramientas/flujo-de-fondos/calcular' 
     data = '{ \"BONO_' + symb + '\": \"100\"}'
@@ -21,25 +31,15 @@ def run(symb):
         'Referer': 'https://www.puentenet.com/herramientas/flujo-de-fondos/' 
     }
     headers.update(cache.get_headers_for(urlparse(endpoint).netloc))
-    src, text = cache.get_post(
-            file=symb,
-            endpoint=endpoint,
-            data=data,
-            headers=headers,
-            expiration_time=one_day * 365
+    df = cache.fetch_url_post(
+        file=symb,
+        endpoint=endpoint,
+        headers=headers,
+        data=data,
+        response_mapping=response_mapping,
+        expiration=one_day * 365
     )
-    try:
-        assert text
-        resJson = json.loads(text)
-        assert(resJson)
-        mapFlujosDTO = resJson['mapFlujosDTO']
-        assert mapFlujosDTO
-        rows = mapFlujosDTO['USD']
-        assert rows
-        print(pd.DataFrame(rows))
-    except:
-        raise RuntimeError("Error fetching " + symb + " from source:\n\n" + src)
-
+    print(df)
 
 
 

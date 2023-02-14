@@ -7,8 +7,7 @@ from src import soup
 one_day = 60 * 60 * 24
 one_year = one_day * 365
 
-def run(symb):
-    text = cache.get_url('https://www.rava.com/perfil/' + symb, one_year * 3)
+def response_mapping(text):
     assert text
     page = soup.get_soup(text) 
     assert page
@@ -23,6 +22,17 @@ def run(symb):
     flujofondos = resList['flujofondos']
     df = pd.DataFrame(flujofondos)
     df.fillna(0, inplace=True)
+    return df
+
+
+def run(symb):
+    df = cache.fetch_url_get(
+        url='https://www.rava.com/perfil/' + symb,
+        headers={},
+        response_mapping=response_mapping,
+        expiration=one_year * 3
+    )
+
     print (df)
     print(df.sum(axis=0, numeric_only=True))
 
