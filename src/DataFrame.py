@@ -35,7 +35,10 @@ def df_standarize_header(*args):
 
 def df_map_time(df):
     assert_has_column(df, 'Date')
-    df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
+    try:
+        df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
+    except ValueError as e:
+        print("Could not map time column ("+ str(e) +"), ignoring. TODO: check column instead")
 
 def df_set_index_to_time(df):
     assert_has_column(df, 'Date')
