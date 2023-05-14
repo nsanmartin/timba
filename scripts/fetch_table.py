@@ -1,3 +1,4 @@
+# deprecated
 # run this with
 # $ python -m scripts.table ...
 # from timba/
