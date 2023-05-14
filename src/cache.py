@@ -76,12 +76,9 @@ def fetch_url_post(file, endpoint, headers, data, response_mapping, expiration):
     path = url_to_cache_path(endpoint + "/" + file)
     if cache_is_valid(path, expiration):
         with open(path) as f:
-            #return str(path), f.read()
             return response_mapping(f.read())
     else:
         print("fetching " + str(endpoint))
-        # print("with data: " + str(data))
-        # print("and headers: " + str(headers))
         try:
 
             r = requests.post(endpoint, data=data, headers=headers)

@@ -3,26 +3,11 @@ import pandas as pd
 import json
 from src import cache
 from src import soup
+from scraping.www_rava_com__ import \
+        response_mapping_flujofondos as response_mapping
 
 one_day = 60 * 60 * 24
 one_year = one_day * 365
-
-def response_mapping(text):
-    assert text
-    page = soup.get_soup(text) 
-    assert page
-    perfil_p = page.find("perfil-p")
-    assert perfil_p
-    res = perfil_p.attrs[':res']
-    assert res
-    resJson = json.loads(res)
-    assert(resJson)
-    resList = resJson['flujofondos']
-    assert(resList)
-    flujofondos = resList['flujofondos']
-    df = pd.DataFrame(flujofondos)
-    df.fillna(0, inplace=True)
-    return df
 
 
 def run(symb):

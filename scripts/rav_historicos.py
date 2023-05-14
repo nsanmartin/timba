@@ -1,23 +1,17 @@
-import matplotlib.pyplot as plt
-from src import DataFrame as tdf
-import argparse
 from src import cache
+from scraping.www_rava_com__ import \
+    response_mapping_historicos as response_mapping
 from urllib.parse import urlparse
+import argparse
 import datetime as dt
 import json
-import pandas as pd
+import matplotlib.pyplot as plt
 import sys
 
 one_day = 60 * 60 * 24
 
-def response_mapping(text):
-    assert text
-    resJson = json.loads(text)
-    assert(resJson)
-    return pd.DataFrame(resJson['body'])
 
-
-def get_df(symb, expiration=one_day):
+def get_df(symb, response_mapping, expiration=one_day):
     endpoint = "https://clasico.rava.com/lib/restapi/v3/publico/cotizaciones/historicos"
     data = {
         'especie': symb,
@@ -36,8 +30,7 @@ def get_df(symb, expiration=one_day):
     return(df)
 
 def run(symb, plot, tail, expiration):
-    df = get_df(symb, expiration)
-    df = tdf.DataFrameDateIx.fromDataFrame(df)
+    df = get_df(symb, response_mapping, expiration)
     df = df.df.iloc[-tail:]
     if plot:
         df['Close'].plot()
