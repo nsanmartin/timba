@@ -31,14 +31,20 @@ def assert_has_column(df, colname):
 
 def df_standarize_header(*args):
     for df in args:
-        df.rename(columns= { k:standarize_column_name(k) for k in df.columns }, inplace=True)
+        df.rename(
+            columns={
+                k:standarize_column_name(k) for k in df.columns
+                },
+            inplace=True
+        )
 
 def df_map_time(df):
     assert_has_column(df, 'Date')
     try:
         df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
     except ValueError as e:
-        print("Could not map time column ("+ str(e) +"), ignoring. TODO: check column instead")
+        print("Could not map time column (" \
+                + str(e) +"), ignoring. TODO: check column instead")
 
 def df_set_index_to_time(df):
     assert_has_column(df, 'Date')
@@ -71,9 +77,11 @@ def df_concat_cols(colname, dfs):
 
 
 
-## DataFrame subtypes
-
 class DataFrameRaw():
+    '''
+    This is just a wrapper over pd.DataFrame
+    '''
+
     @staticmethod
     def fromDataFrame(df):
         if isinstance(df, pd.DataFrame):
@@ -81,7 +89,10 @@ class DataFrameRaw():
         if isinstance(df, DataFrameRaw):
             return df
         else:
-            raise RuntimeError("Expected df of type timba.DataFrame or timba.DataFrameRaw")
+            raise RuntimeError(
+                "Expected df of type pd.DataFrame or " \
+                + "timba.DataFrameRaw"
+            )
 
 
     @classmethod
@@ -100,7 +111,11 @@ class DataFrameRaw():
         return repr(self.df)
 
 
+
 class DataFrameStdHead(DataFrameRaw):
+    '''
+    This adds to the DataFrameRaw a standard naming for the columns.
+    '''
     @staticmethod
     def fromDataFrame(df):
         if isinstance(df, DataFrameStdHead):
@@ -110,7 +125,9 @@ class DataFrameStdHead(DataFrameRaw):
             return DataFrameStdHead(df.df)
 
         else:
-            return DataFrameStdHead.fromDataFrame(DataFrameRaw.fromDataFrame(df))
+            return DataFrameStdHead.fromDataFrame(
+                DataFrameRaw.fromDataFrame(df)
+            )
 
             
     @classmethod
@@ -119,8 +136,11 @@ class DataFrameStdHead(DataFrameRaw):
 
 
 
-
 class DataFrameDateIx(DataFrameStdHead):
+    '''
+    This type adds to the standarized header and index based on
+    Date column (therefore the parameter must have a Date column).
+    '''
     @staticmethod
     def fromDataFrame(df):
         if isinstance(df, DataFrameDateIx):
@@ -130,7 +150,9 @@ class DataFrameDateIx(DataFrameStdHead):
             df_set_index_to_time(df.df)
             return DataFrameDateIx(df.df)
         else:
-            return DataFrameDateIx.fromDataFrame(DataFrameStdHead.fromDataFrame(df))
+            return DataFrameDateIx.fromDataFrame(
+                DataFrameStdHead.fromDataFrame(df)
+            )
 
     @staticmethod
     def fromDateIndexed(df, symb=None):
@@ -153,8 +175,12 @@ class DataFrameDateIx(DataFrameStdHead):
 
 
 
-# multi symb data frame
+# DataFrameSymbCmp
 class DataFrameSymbCmp(DataFrameRaw):
+    '''
+    This class is a wrapper of a df collection for the purpose of
+    comparing them.
+    '''
     @classmethod
     def fromDataFrameList(cls, dfs):
         dfs = [ DataFrameDateIx.fromDataFrame(df) for df in dfs]
