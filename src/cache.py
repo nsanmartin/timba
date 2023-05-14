@@ -54,15 +54,19 @@ def fetch_url_get(url, headers, response_mapping, expiration):
             curl = curlify.to_curl(r.request)
             try:
                 if r.status_code != 200:
-                    raise Exception("Response status code was: " + str(r.status_code))
+                    raise Exception(
+                        "Response status code was: " \
+                            + str(r.status_code)
+                    )
                 content = response_mapping(r.text)
                 path.parent.mkdir(exist_ok=True, parents=True)
                 path.write_text(r.text)
                 return content
             except Exception as e:
-                msg = "error fetching " + url + " from source:\n\n" + curl + "\n" + \
-                "status code: " + str(r.status_code) + "\n" + \
-                "r.text[:100]: '" + r.text[:100] + "'"
+                msg = "error fetching " + url + " from source:\n\n" \
+                    + curl + "\n" \
+                    + "status code: " + str(r.status_code) + "\n" \
+                    + "r.text[:100]: '" + r.text[:100] + "'"
                 raise RuntimeError(msg) from e
         except requests.exceptions.InvalidSchema as e:
             raise RuntimeError("Error fetching url: " + url) from e
@@ -90,63 +94,39 @@ def fetch_url_post(file, endpoint, headers, data, response_mapping, expiration):
                 path.write_text(r.text)
                 return content
             except Exception as e:
-                msg = "error fetching " + endpoint + " from source:\n\n" + curl + "\n" + \
-                "status code: " + str(r.status_code) + "\n" + \
-                "r.text[:100]: '" + r.text[:100] + "'"
+                msg = "error fetching " + endpoint \
+                        + " from source:\n\n" + curl + "\n" \
+                        + "status code: " + str(r.status_code) + "\n" \
+                        + "r.text[:100]: '" + r.text[:100] + "'"
                 raise RuntimeError(msg) from e
         except requests.exceptions.InvalidSchema as e:
-            raise RuntimeError("Error fetching endpoint: " + endpoint) from e
+            raise RuntimeError(
+                "Error fetching endpoint: " + endpoint
+            ) from e
 
 
 
-def fetch_yf_download(symbol, expiration):
+def fetch_yf_download(symbol, expiration, response_mapping):
     path = url_to_cache_path("yf/download/" + symbol)
     if cache_is_valid(path, expiration):
-        return pd.read_csv(path)
+        return response_mapping(pd.read_csv(path))
     else:
         try:
             df = yf.download(symbol)
             if df.shape[0] == 0:
-                    raise Exception("No data obtained in yf for: " + symbol)
+                    raise Exception(
+                        "No data obtained in yf for: " + symbol
+                    )
+            res = response_mapping(df)
             path.parent.mkdir(exist_ok=True, parents=True)
             df.to_csv(path)
-            return df
+            return res
         except Exception as e:
             msg = "error fetching " + symbol + " from yf"
             raise RuntimeError(msg) from e
         except requests.exceptions.InvalidSchema as e:
-            raise RuntimeError("Error fetching yf.download( " + sumbol +")") from e
+            raise RuntimeError(
+                "Error fetching yf.download( " + sumbol +")"
+            ) from e
 
     
-
-# def get_post(file, endpoint, data, headers, expiration_time=None):
-#     path = url_to_cache_path(endpoint + "/" + file)
-#     if cache_is_valid(path, expiration_time):
-#         with open(path) as f:
-#             return str(path), f.read()
-#     else: 
-#         print("fetching " + endpoint)
-#         print(data)
-#         print(headers)
-#         r = requests.post(endpoint, data=data, headers=headers)
-#         curl = curlify.to_curl(r.request)
-#         if r.status_code == 200:
-#             content = r.text
-#             path.parent.mkdir(exist_ok=True, parents=True)
-#             path.write_text(content)
-#             return curl, content
-#         else:
-#             curl, None
-# 
-# 
-# def get_url(url, expiration_time=None):
-#     path = url_to_cache_path(url)
-#     if cache_is_valid(path, expiration_time):
-#         with open(path) as f:
-#             return f.read()
-#     else:
-#         print("fetching " + url)
-#         content = fetch.web_page(url)
-#         path.parent.mkdir(exist_ok=True, parents=True)
-#         path.write_text(content)
-#         return content

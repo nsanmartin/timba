@@ -146,8 +146,9 @@ class DataFrameDateIx(DataFrameStdHead):
         if isinstance(df, DataFrameDateIx):
             return df
         elif isinstance(df, DataFrameStdHead):
-            df_map_time(df.df)
-            df_set_index_to_time(df.df)
+            if df.df.index.name != 'Date':
+                df_map_time(df.df)
+                df_set_index_to_time(df.df)
             return DataFrameDateIx(df.df)
         else:
             return DataFrameDateIx.fromDataFrame(
@@ -175,12 +176,12 @@ class DataFrameDateIx(DataFrameStdHead):
 
 
 
-# DataFrameSymbCmp
 class DataFrameSymbCmp(DataFrameRaw):
     '''
     This class is a wrapper of a df collection for the purpose of
     comparing them.
     '''
+
     @classmethod
     def fromDataFrameList(cls, dfs):
         dfs = [ DataFrameDateIx.fromDataFrame(df) for df in dfs]

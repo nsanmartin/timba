@@ -9,10 +9,12 @@ import matplotlib.pyplot as plt
 
 one_day = 60 * 60 * 24
 
+def response_mapping_yf(df):
+    df = tdf.DataFrameDateIx.fromDataFrame(df)
+    return df
 
 def run(symb, plot, tail, expiration):
-    df = cache.fetch_yf_download(symb, expiration)
-    df = tdf.DataFrameDateIx.fromDataFrame(df)
+    df = cache.fetch_yf_download(symb, expiration, response_mapping_yf)
     df = df.df.iloc[-tail:]
 
     if plot:

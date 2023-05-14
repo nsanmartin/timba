@@ -2,15 +2,15 @@ import json
 import pandas as pd
 import sys
 from src import cache
-from scripts import rav_historicos
 from src import DataFrame as tdf
 import matplotlib.pyplot as plt
 
 one_day = 60 * 60 * 24
 
+def idfun(x): return x
 
 def run(symbs):
-    ls = [  cache.fetch_yf_download(s, one_day) for s in symbs ]
+    ls = [ cache.fetch_yf_download(s, one_day, idfun) for s in symbs ]
     for df,symb in zip(ls,symbs):
         df['Symb'] = symb
 
