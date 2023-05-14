@@ -1,7 +1,7 @@
 from src import soup
 import json
 
-def response_mapping_corizaciones_dolares(text):
+def response_mapping_cotizaciones_dolares(text):
     assert text
     page = soup.get_soup(text) 
     assert page

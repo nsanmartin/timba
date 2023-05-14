@@ -1,10 +1,9 @@
 import argparse
 import sys
 import pandas as pd
-import json
 from src import cache
 from scraping.www_rava_com__ \
-    import response_mapping_corizaciones_dolares as response_mapping
+    import response_mapping_cotizaciones_dolares as response_mapping
 
 one_day = 60 * 60 * 24
 one_year = one_day * 365
