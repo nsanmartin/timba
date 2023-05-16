@@ -1,3 +1,4 @@
+import argparse
 import json
 import pandas as pd
 import sys
@@ -12,21 +13,29 @@ from timba.scraping.www_rava_com__ import \
 one_day = 60 * 60 * 24
 
 
-def run(symbs):
+def run(symbs, tail, expiration):
     ls = [
-        rav_historicos.get_df(s, response_mapping) for s in symbs
+        rav_historicos.get_df(s, response_mapping, expiration)
+        for s in symbs
     ]
 
     df = tdf.DataFrameSymbCmp.fromDataFrameList(ls)
     ratios =  df.getRatios()
-    ratios.df.plot()
+    ratios.df.iloc[-tail:].plot()
     plt.show()
 
 
 if __name__ == "__main__":
-    symbs = set(sys.argv[1:])
+    parser = argparse.ArgumentParser(description='Fetch symbol')
+    parser.add_argument('rest', nargs='+')
+    parser.add_argument('-t', '--tail', type=int, default=0)
+    parser.add_argument('-e', '--expiration', type=int, default=one_day)
+    args = parser.parse_args()
+    symbs = set(args.rest)
+
     if len(symbs) < 2:
         print("At least 2 symbols are needed to compare")
-        print("Given: {}".format(sys.argv[1:]))
+        print("Given: {}".format(symbs))
     else:
-        run(symbs)
+        print(symbs)
+        run(symbs, args.tail, args.expiration)

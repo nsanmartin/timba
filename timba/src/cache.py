@@ -103,7 +103,7 @@ def fetch_url_post(file, endpoint, headers, data, response_mapping, expiration):
 
 
 
-def fetch_yf_download(symbol, expiration, response_mapping):
+def fetch_yf_download(symbol, response_mapping, expiration):
     path = url_to_cache_path("yf/download/" + symbol)
     if cache_is_valid(path, expiration):
         return response_mapping(pd.read_csv(path))

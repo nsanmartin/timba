@@ -14,7 +14,7 @@ def response_mapping_yf(df):
     return df
 
 def run(symb, plot, tail, expiration):
-    df = cache.fetch_yf_download(symb, expiration, response_mapping_yf)
+    df = cache.fetch_yf_download(symb, response_mapping_yf, expiration)
     df = df.df.iloc[-tail:]
 
     if plot:
@@ -33,5 +33,5 @@ if __name__ == "__main__":
     parser.add_argument('-e', '--expiration', type=int, default=one_day)
     args = parser.parse_args()
 
-    for symb in args.rest:
+    for symb in set(args.rest):
         run(symb, args.plot, args.tail, args.expiration)
