@@ -2,7 +2,7 @@
 import json
 import pandas as pd
 import sys
-from src import cache
+from timba.src import cache
 from urllib.parse import urlparse
 import datetime as dt
 
@@ -44,6 +44,8 @@ def run(symb):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print("Symb is missing.")
     for symb in sys.argv[1:]:
         run(symb)
 

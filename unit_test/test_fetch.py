@@ -1,5 +1,5 @@
 import unittest
-from src import fetch
+from timba.src import fetch
 
 class TestFetch(unittest.TestCase):
     def test_build_qurl1(self):

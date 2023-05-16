@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 import curlify
-from src import fetch
+from timba.src import fetch
 from pathlib import Path
 import datetime as dt
 import requests

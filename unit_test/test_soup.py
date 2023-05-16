@@ -1,6 +1,6 @@
 import unittest
 from bs4 import BeautifulSoup
-from src import soup
+from timba.src import soup
 
 table0 = BeautifulSoup("""<table class="tablename">
         <thead>

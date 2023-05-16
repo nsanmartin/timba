@@ -1,9 +1,9 @@
 import sys
 import pandas as pd
 import json
-from src import cache
-from src import soup
-from scraping.www_rava_com__ import \
+from timba.src import cache
+from timba.src import soup
+from timba.scraping.www_rava_com__ import \
         response_mapping_flujofondos as response_mapping
 
 one_day = 60 * 60 * 24

@@ -1,5 +1,5 @@
 import unittest
-from src import table
+from timba.src import table
 
 class TestTable(unittest.TestCase):
     def test_read_number(self):

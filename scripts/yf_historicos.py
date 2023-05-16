@@ -2,9 +2,9 @@ import argparse
 import json
 import pandas as pd
 import sys
-from src import cache
+from timba.src import cache
 from scripts import rav_historicos
-from src import DataFrame as tdf
+from timba.src import DataFrame as tdf
 import matplotlib.pyplot as plt
 
 one_day = 60 * 60 * 24

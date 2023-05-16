@@ -1,5 +1,5 @@
-from src import DataFrame as tdf
-from src import soup
+from timba.src import DataFrame as tdf
+from timba.src import soup
 import json
 import pandas as pd
 

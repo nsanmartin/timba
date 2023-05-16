@@ -1,5 +1,5 @@
-from src import cache
-from scraping.www_rava_com__ import \
+from timba.src import cache
+from timba.scraping.www_rava_com__ import \
     response_mapping_historicos as response_mapping
 from urllib.parse import urlparse
 import argparse

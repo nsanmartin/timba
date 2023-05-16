@@ -6,3 +6,6 @@ __pycache__
 
 scratch
 venv
+build
+timba.egg-info
+dist

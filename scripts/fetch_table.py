@@ -5,10 +5,10 @@
 
 import argparse
 import sys
-from src import fetch
-from src import soup
-from src import table
-from src import cache
+from timba.src import fetch
+from timba.src import soup
+from timba.src import table
+from timba.src import cache
 from urllib.parse import urlparse
 
 def print_help(cmd):
