@@ -2,7 +2,7 @@ import argparse
 import json
 import pandas as pd
 import sys
-from timba.src import cache
+from timba.src import cache, fetch
 from scripts import rav_historicos
 from timba.src import DataFrame as tdf
 import matplotlib.pyplot as plt
@@ -14,7 +14,15 @@ def response_mapping_yf(df):
     return df
 
 def run(symb, plot, tail, expiration):
-    df = cache.fetch_yf_download(symb, response_mapping_yf, expiration)
+    path = cache.url_to_cache_path("yf/download/" + symb)
+
+    df = cache.fetch_url(
+        fetcher = fetch.FetchDataYf(symb),
+        response_mapping = response_mapping_yf,
+        cache = cache.CacheDataFrame(expiration),
+        path = path
+    )
+
     df = df.df.iloc[-tail:]
 
     if plot:

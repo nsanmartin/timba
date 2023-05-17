@@ -39,7 +39,7 @@ class Tabla():
 
     def fetch(self, header_index, headers, expiration):
         self.header_index=header_index
-        data = cache.fetch_url_get(self.get_url(), headers, self.response_mapping, expiration)
+        data = cache.fetch_url_get(self.get_url(), headers, self.response_mapping, cache=cache.CacheFile(expiration))
         return data
 
 

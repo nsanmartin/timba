@@ -2,7 +2,7 @@ import argparse
 import json
 import pandas as pd
 import sys
-from timba.src import cache
+from timba.src import cache, fetch
 from timba.src import DataFrame as tdf
 import matplotlib.pyplot as plt
 
@@ -11,7 +11,17 @@ one_day = 60 * 60 * 24
 def idfun(x): return x
 
 def run(symbs, tail, expiration):
-    ls = [ cache.fetch_yf_download(s, idfun, expiration) for s in symbs ]
+    dfCache = cache.CacheDataFrame(expiration)
+    ls = [
+        cache.fetch_url(
+            fetcher = fetch.FetchDataYf(s),
+            response_mapping = idfun,
+            cache = dfCache,
+            path = cache.url_to_cache_path("yf/download/" + s)
+        )
+        for s in symbs
+    ]
+
     for df,symb in zip(ls,symbs):
         df['Symb'] = symb
 

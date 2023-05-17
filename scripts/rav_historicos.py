@@ -1,4 +1,4 @@
-from timba.src import cache
+from timba.src import cache, fetch
 from timba.scraping.www_rava_com__ import \
     response_mapping_historicos as response_mapping
 from urllib.parse import urlparse
@@ -19,13 +19,13 @@ def get_df(symb, response_mapping, expiration=one_day):
         'fecha_fin': dt.datetime.today().strftime("%Y-%m-%d")
     }
     data.update(cache.get_data_for(urlparse(endpoint).netloc))
-    df = cache.fetch_url_post(
-        file=symb,
-        endpoint=endpoint,
-        headers={},
-        data=data,
-        response_mapping=response_mapping,
-        expiration=expiration
+
+    path = cache.url_to_cache_path(endpoint + "/" + symb)
+    df = cache.fetch_url(
+        fetcher = fetch.FetchReqPost(endpoint, path, {}, data),
+        response_mapping = response_mapping,
+        cache = cache.CacheFile(expiration),
+        path = path
     )
     return(df)
 

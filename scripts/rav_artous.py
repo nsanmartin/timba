@@ -1,7 +1,7 @@
 import argparse
 import sys
 import pandas as pd
-from timba.src import cache
+from timba.src import cache, fetch
 from timba.scraping.www_rava_com__ \
     import response_mapping_cotizaciones_dolares as response_mapping
 
@@ -11,11 +11,12 @@ one_year = one_day * 365
 
 def url_fetch_and_map(url, expiration, response_mapping):
     print(url)
-    rava = cache.fetch_url_get(
-        url=url,
-        headers={},
-        response_mapping=response_mapping,
-        expiration=expiration
+
+    rava = cache.fetch_url(
+        fetcher = fetch.FetchReqGet(url, headers={}),
+        response_mapping = response_mapping,
+        cache = cache.CacheFile(expiration),
+        path = cache.url_to_cache_path(url)
     )
     return rava
 

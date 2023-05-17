@@ -1,4 +1,4 @@
-from timba.src import cache
+from timba.src import cache, fetch
 from timba.src import soup
 from timba.scraping.www_rava_com__ import \
     response_mapping_home as response_mapping
@@ -14,11 +14,13 @@ one_year = one_day * 365
 
 def get_rava(expiration):
     print("rava home")
-    rava = cache.fetch_url_get(
-        url='https://www.rava.com/',
-        headers={},
-        response_mapping=response_mapping,
-        expiration=expiration
+    url = 'https://www.rava.com/'
+
+    rava = cache.fetch_url(
+        fetcher = fetch.FetchReqGet(url, headers={}),
+        response_mapping = response_mapping,
+        cache = cache.CacheFile(expiration),
+        path = cache.url_to_cache_path(url)
     )
     return rava
 

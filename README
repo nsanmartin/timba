@@ -1,8 +1,8 @@
 # Create a python3 environment
-$ python3 -m venv ~/.venv/timba
+$ python3 -m venv venv
 
 # Activate environment
-$ source ~/.venv/timba/bin/activate
+$ source venv
 
 # install requirements
 $ pip -r requeriments.txt
@@ -12,3 +12,7 @@ $ make tests
 
 # run script
 $ python -m script.script_name
+
+# package
+$ python3 -m build
+

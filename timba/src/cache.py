@@ -9,27 +9,77 @@ import json
 import os.path
 
 
-TIMBA_PATH = str(Path.home()) + '/.timba/'
-CACHE_PATH = TIMBA_PATH + 'cache/'
+
+
+def url_to_cache_path(url):
+    return Path(Cache.CACHE_PATH + url.replace('//', '/') + '$')
+
+
+class Cache:
+    TIMBA_PATH = str(Path.home()) + '/.timba/'
+    CACHE_PATH = TIMBA_PATH + 'cache/'
+
+    def __init__(self, expiration_time):
+        self.expiration_time = expiration_time
+
+    def is_stored(self, path): raise NotImplementedError()
+
+    def is_valid(self, path):
+        if not self.is_stored(path):
+            return False
+
+        if self.expiration_time is None:
+            return True
+        expiration = path.stat().st_mtime + self.expiration_time
+        return expiration >= dt.datetime.now().timestamp()
+
+
+class CacheDisc(Cache):
+    def is_stored(self, path): return path.exists()
+
+class CacheFile(CacheDisc):
+    def get(self, path):
+        with open(path) as f:
+            return f.read()
+
+    def set(self, path, content):
+        path.parent.mkdir(exist_ok=True, parents=True)
+        path.write_text(content)
+
+class CacheDataFrame(CacheDisc):
+    def get(self, path):
+        return pd.read_csv(path)
+
+    def set(self, path, df):
+        path.parent.mkdir(exist_ok=True, parents=True)
+        df.to_csv(path)
+
+
+class CacheMem(Cache):
+    store = {}
+    def is_stored(self, path):
+        return path in CacheMem.store
+    
+    def get(self, path):
+        return CacheMem.store[path]
+
+    def set(self, path, df):
+        CacheMem.store[path] = df
+
+
 
 def get_data_for(url):
-    path = TIMBA_PATH + 'data/' + url
+    path = Cache.TIMBA_PATH + 'data/' + url
     with open(path) as f:
         return json.load(f)
     
 def get_headers_for(url):
-    path = TIMBA_PATH + 'headers/' + url
+    path = Cache.TIMBA_PATH + 'headers/' + url
     if os.path.isfile(path):
         with open(path) as f:
             return json.load(f)
     return {}
     
-
-def url_to_cache_path(url):
-    return Path(CACHE_PATH + url.replace('//', '/') + '$')
-
-def time_has_expired(time):
-    return time < dt.datetime.now().timestamp()
 
 def cache_is_valid(path, expiration_time):
     if not path.exists():
@@ -42,88 +92,14 @@ def cache_is_valid(path, expiration_time):
 
 
 
-def fetch_url_get(url, headers, response_mapping, expiration):
-    path = url_to_cache_path(url)
-    if cache_is_valid(path, expiration):
-        with open(path) as f:
-            return response_mapping(f.read())
+
+def fetch_url(fetcher, response_mapping, cache, path):
+    if cache.is_valid(path):
+        return response_mapping(cache.get(path))
     else:
         try:
-            print("fetching " + url)
-            r = requests.get(url, headers=headers)
-            curl = curlify.to_curl(r.request)
-            try:
-                if r.status_code != 200:
-                    raise Exception(
-                        "Response status code was: " \
-                            + str(r.status_code)
-                    )
-                content = response_mapping(r.text)
-                path.parent.mkdir(exist_ok=True, parents=True)
-                path.write_text(r.text)
-                return content
-            except Exception as e:
-                msg = "error fetching " + url + " from source:\n\n" \
-                    + curl + "\n" \
-                    + "status code: " + str(r.status_code) + "\n" \
-                    + "r.text[:100]: '" + r.text[:100] + "'"
-                raise RuntimeError(msg) from e
+            return fetcher.get(cache, path, response_mapping)
         except requests.exceptions.InvalidSchema as e:
-            raise RuntimeError("Error fetching url: " + url) from e
+            raise RuntimeError("Error fetching url: " + fetcher.url) from e
 
 
-def fetch_url_post(file, endpoint, headers, data, response_mapping, expiration):
-    path = url_to_cache_path(endpoint + "/" + file)
-    if cache_is_valid(path, expiration):
-        with open(path) as f:
-            return response_mapping(f.read())
-    else:
-        print("fetching " + str(endpoint))
-        try:
-
-            r = requests.post(endpoint, data=data, headers=headers)
-            curl = curlify.to_curl(r.request)
-            try:
-                if r.status_code != 200:
-                    raise Exception("Response status code was: " + str(r.status_code))
-                content = response_mapping(r.text)
-                path.parent.mkdir(exist_ok=True, parents=True)
-                path.write_text(r.text)
-                return content
-            except Exception as e:
-                msg = "error fetching " + endpoint \
-                        + " from source:\n\n" + curl + "\n" \
-                        + "status code: " + str(r.status_code) + "\n" \
-                        + "r.text[:100]: '" + r.text[:100] + "'"
-                raise RuntimeError(msg) from e
-        except requests.exceptions.InvalidSchema as e:
-            raise RuntimeError(
-                "Error fetching endpoint: " + endpoint
-            ) from e
-
-
-
-def fetch_yf_download(symbol, response_mapping, expiration):
-    path = url_to_cache_path("yf/download/" + symbol)
-    if cache_is_valid(path, expiration):
-        return response_mapping(pd.read_csv(path))
-    else:
-        try:
-            df = yf.download(symbol)
-            if df.shape[0] == 0:
-                    raise Exception(
-                        "No data obtained in yf for: " + symbol
-                    )
-            res = response_mapping(df)
-            path.parent.mkdir(exist_ok=True, parents=True)
-            df.to_csv(path)
-            return res
-        except Exception as e:
-            msg = "error fetching " + symbol + " from yf"
-            raise RuntimeError(msg) from e
-        except requests.exceptions.InvalidSchema as e:
-            raise RuntimeError(
-                "Error fetching yf.download( " + sumbol +")"
-            ) from e
-
-    

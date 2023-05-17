@@ -2,7 +2,7 @@
 import json
 import pandas as pd
 import sys
-from timba.src import cache
+from timba.src import cache, fetch
 from urllib.parse import urlparse
 import datetime as dt
 
@@ -31,13 +31,13 @@ def run(symb):
         'Referer': 'https://www.puentenet.com/herramientas/flujo-de-fondos/' 
     }
     headers.update(cache.get_headers_for(urlparse(endpoint).netloc))
-    df = cache.fetch_url_post(
-        file=symb,
-        endpoint=endpoint,
-        headers=headers,
-        data=data,
+
+    path = cache.url_to_cache_path(endpoint + "/" + symb)
+    df = cache.fetch_url(
+        fetcher=fetch.FetchReqPost(endpoint, path, headers, data),
         response_mapping=response_mapping,
-        expiration=one_day * 365
+        cache = cache.CacheFile(one_day * 365),
+        path=path
     )
     print(df)
 
