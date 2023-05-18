@@ -1,3 +1,4 @@
+from timba.scraping import  ScrapingSupplier
 from timba.src import soup, fetch, cache
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -26,28 +27,22 @@ def response_mapping_dolar(text):
     return [ map_each_dolar(elem) for elem in table if elem ]
 
 
-def get_dolar_table(data):
-    for df in data:
-        try:
-            if 'Especie' in df.columns \
-                and df['Especie'].str.contains('Dólar').any():
-                df.dropna(inplace=True)
-                return df
-        except Exception:
-            pass
-    raise RuntimeError("Table not found in ecovalores")
 
+class DolarPricesSupplier(ScrapingSupplier):
+    def __init__(self, cache_used):
+        super().__init__(cache_used)
+        self.url = Url.eco
 
-def fetch_dolar_prices(cache_used):
-    data = cache.fetch_url(
-        fetcher = fetch.FetchReqGet(Url.eco, headers={}),
-        response_mapping = response_mapping_dolar,
-        cache=cache_used,
-        path = cache.url_to_cache_path(Url.eco)
-    )
+    def get(self):
+        data = cache.fetch_url(
+            fetcher = fetch.FetchReqGet(Url.eco, headers={}),
+            response_mapping = response_mapping_dolar,
+            cache=self.cache_used,
+            path = cache.url_to_cache_path(self.url)
+        )
 
-    df = get_dolar_table(data)
-    df.set_index('Especie', inplace=True)
-    df.index.name=None
-    df['Último'] = df['Último'].str.replace(',', '.').astype(float)
-    return df
+        df = get_dolar_table(data)
+        df.set_index('Especie', inplace=True)
+        df.index.name=None
+        df['Último'] = df['Último'].str.replace(',', '.').astype(float)
+        return df

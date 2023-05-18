@@ -1,3 +1,4 @@
+from timba.scraping import  ScrapingSupplier
 from timba.src import DataFrame as tdf
 from timba.src import soup, fetch, cache
 import json
@@ -60,17 +61,22 @@ def response_mapping_cotizaciones_dolares(text):
     return(resJson)
 
 
-def get_dolar_prices(cache_used):
-    rava = cache.fetch_url(
-        fetcher = fetch.FetchReqGet(Url.dolars, headers={}),
-        response_mapping = response_mapping_cotizaciones_dolares,
-        cache = cache_used,
-        path = cache.url_to_cache_path(Url.dolars)
-    )
+class DolarPricesSupplier(ScrapingSupplier):
+    def __init__(self, cache_used):
+        super().__init__(cache_used)
+        self.url = Url.dolars
 
-    df = pd.DataFrame(rava['body'])
-    df = df.drop( df.columns.difference(['ultimo', 'especie']), axis=1)
-    df.set_index('especie', inplace=True)
-    df.index.name = None
-    return df
+    def get(self):
+        rava = cache.fetch_url(
+            fetcher = fetch.FetchReqGet(self.url, headers={}),
+            response_mapping = response_mapping_cotizaciones_dolares,
+            cache = self.cache_used,
+            path = cache.url_to_cache_path(self.url)
+        )
+
+        df = pd.DataFrame(rava['body'])
+        df = df.drop( df.columns.difference(['ultimo', 'especie']), axis=1)
+        df.set_index('especie', inplace=True)
+        df.index.name = None
+        return df
 

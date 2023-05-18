@@ -5,7 +5,7 @@ from timba.src import fetch
 from timba.src import soup
 from timba.src import table
 from timba.src import cache
-from timba.scraping.bonos_ecovalores_com_ar import fetch_dolar_prices
+from timba.scraping.bonos_ecovalores_com_ar import DolarPricesSupplier
 from urllib.parse import urlparse
 
 
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('rest', nargs='*')
     args = parser.parse_args()
 
-    df = fetch_dolar_prices(cache.CacheFile(args.expiration))
+    df = DolarPricesSupplier(cache.CacheFile(args.expiration)).get()
 
     for r in args.rest:
         precio = float(r)

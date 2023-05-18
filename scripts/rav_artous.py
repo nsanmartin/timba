@@ -2,14 +2,14 @@ import argparse
 import sys
 import pandas as pd
 from timba.src import cache, fetch
-from timba.scraping.www_rava_com__ import get_dolar_prices
+from timba.scraping.www_rava_com__ import DolarPricesSupplier
 
 one_day = 60 * 60 * 24
 one_year = one_day * 365
 
 
 def run_cache_file(url, args, c):
-    df = get_dolar_prices(c)
+    df = DolarPricesSupplier(c).get()
 
     for r in args.rest:
         precio = float(r)
