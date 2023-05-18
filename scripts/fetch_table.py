@@ -32,7 +32,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     query = None if not args.query else args.query.split("=")
     container = None if not args.container else args.container.split(",")
-    #body = "tbody" if not args.body else args.body
     body = "tbdoy" if not args.body else args.body
     
     tab = table.Tabla(
