@@ -9,27 +9,12 @@ one_day = 60 * 60 * 24
 one_year = one_day * 365
 
 
-def url_fetch_and_map(url, expiration, response_mapping):
-    print(url)
-
+def run_cache_file(url, args, c):
     rava = cache.fetch_url(
         fetcher = fetch.FetchReqGet(url, headers={}),
         response_mapping = response_mapping,
-        cache = cache.CacheFile(expiration),
+        cache = c,
         path = cache.url_to_cache_path(url)
-    )
-    return rava
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Fetch rava dolars')
-    parser.add_argument('-e', '--expiration', type=int, default=1600)
-    parser.add_argument('rest', nargs='*')
-    args = parser.parse_args()
-
-    rava = url_fetch_and_map(
-            'https://www.rava.com/cotizaciones/dolares',
-            args.expiration,
-            response_mapping
     )
 
     for r in args.rest:
@@ -44,3 +29,22 @@ if __name__ == "__main__":
         df['p/d'] = precio/df['ultimo']
         print(df)
 
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Fetch rava dolars')
+    parser.add_argument('-e', '--expiration', type=int, default=1600)
+    parser.add_argument('--testing', default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument('rest', nargs='*')
+    args = parser.parse_args()
+
+    url = 'https://www.rava.com/cotizaciones/dolares'
+
+    if args.testing:
+        for _ in range(4):
+            c = cache.CacheMem(args.expiration)
+            run_cache_file(url, args, c)
+        
+    else:
+        c = cache.CacheFile(args.expiration)
+        run_cache_file(url, args, c)

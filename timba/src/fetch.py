@@ -14,10 +14,13 @@ class FetchData():
     pass
 
 class FetchReq(FetchData):
+    def __init__(self, url, headers):
+        self.url = url
+        self.headers = headers
+
     def download(self): raise NotImplementedError()
 
     def get(self, cache, path, data_mapping):
-        print("fetching " + str(self.url))
         r = self.download()
         curl = curlify.to_curl(r.request)
         try:
@@ -37,10 +40,6 @@ class FetchReq(FetchData):
 
 
 class FetchReqGet(FetchReq):
-    def __init__(self, url, headers):
-        self.url = url
-        self.headers = headers
-
     def download(self):
         print("downloading " + self.url)
         r = requests.get(self.url, headers=self.headers)
@@ -50,12 +49,12 @@ class FetchReqGet(FetchReq):
 
 class FetchReqPost(FetchReq):
     def __init__(self, url, path, headers, data):
-        self.url = url
+        super().__init__(url, headers)
         self.path = path
-        self.headers = headers
         self.data = data
 
     def download(self):
+        print("fetching " + str(self.url))
         return requests.post(self.url, data=self.data, headers=self.headers)
 
 
@@ -64,8 +63,8 @@ class FetchDataYf(FetchData):
         self.symbol = symbol
 
     def get(self, cache, path, data_mapping):
-        print("fetching " + str(path))
         try:
+            print("downloading " + str(path))
             df = yf.download(self.symbol)
             if df.shape[0] == 0:
                     raise Exception("No data obtained in yf for: " + self.symbol)

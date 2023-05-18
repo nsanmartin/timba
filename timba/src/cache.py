@@ -57,14 +57,24 @@ class CacheDataFrame(CacheDisc):
 
 class CacheMem(Cache):
     store = {}
+    expiration = {}
+
     def is_stored(self, path):
         return path in CacheMem.store
     
+    def is_valid(self, path):
+        if not self.is_stored(path): return False
+        if self.expiration_time is None: return True
+
+        expiration = CacheMem.expiration[path] + self.expiration_time
+        return expiration >= dt.datetime.now().timestamp()
+
     def get(self, path):
         return CacheMem.store[path]
 
     def set(self, path, df):
         CacheMem.store[path] = df
+        CacheMem.expiration[path] = dt.datetime.now().timestamp()
 
 
 
