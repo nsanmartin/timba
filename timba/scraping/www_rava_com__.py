@@ -1,7 +1,10 @@
 from timba.src import DataFrame as tdf
-from timba.src import soup
+from timba.src import soup, fetch, cache
 import json
 import pandas as pd
+
+class Url:
+    dolars = 'https://www.rava.com/cotizaciones/dolares'
 
 
 def response_mapping_home(text):
@@ -55,4 +58,19 @@ def response_mapping_cotizaciones_dolares(text):
     resJson = json.loads(res)
     assert(resJson)
     return(resJson)
+
+
+def get_dolar_prices(cache_used):
+    rava = cache.fetch_url(
+        fetcher = fetch.FetchReqGet(Url.dolars, headers={}),
+        response_mapping = response_mapping_cotizaciones_dolares,
+        cache = cache_used,
+        path = cache.url_to_cache_path(Url.dolars)
+    )
+
+    df = pd.DataFrame(rava['body'])
+    df = df.drop( df.columns.difference(['ultimo', 'especie']), axis=1)
+    df.set_index('especie', inplace=True)
+    df.index.name = None
+    return df
 
