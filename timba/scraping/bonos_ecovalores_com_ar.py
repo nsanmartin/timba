@@ -27,6 +27,17 @@ def response_mapping_dolar(text):
     return [ map_each_dolar(elem) for elem in table if elem ]
 
 
+def get_dolar_table(data):
+    for df in data:
+        try:
+            if 'Especie' in df.columns \
+                and df['Especie'].str.contains('Dólar').any():
+                df.dropna(inplace=True)
+                return df
+        except Exception:
+            pass
+    raise RuntimeError("Table not found in ecovalores")
+
 
 class DolarPricesSupplier(ScrapingSupplier):
     def __init__(self, cache_used):
