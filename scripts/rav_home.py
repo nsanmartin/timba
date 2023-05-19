@@ -21,6 +21,8 @@ def get_rava(expiration):
         response_mapping = response_mapping,
         cache = cache.CacheFile(expiration),
         path = cache.url_to_cache_path(url)
+    ).get_data_acting_if_downloaded(               
+        lambda : print("Data downloaded from {}".format(url))
     )
     return rava
 

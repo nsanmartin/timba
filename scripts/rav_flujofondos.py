@@ -19,6 +19,8 @@ def run(symb, expiration):
         response_mapping=response_mapping,
         cache=cache.CacheFile(expiration),
         path=path
+    ).get_data_acting_if_downloaded(               
+        lambda : print("Data downloaded from {}".format(url))
     )
 
     print (df)

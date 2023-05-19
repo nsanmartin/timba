@@ -1,4 +1,4 @@
-
+import argparse
 import json
 import pandas as pd
 import sys
@@ -18,7 +18,7 @@ def response_mapping(text):
 
 
 
-def run(symb):
+def run(symb, expiration):
     endpoint = 'https://www.puentenet.com/herramientas/flujo-de-fondos/calcular' 
     data = '{ \"BONO_' + symb + '\": \"100\"}'
     headers = {
@@ -36,16 +36,24 @@ def run(symb):
     df = cache.fetch_url(
         fetcher=fetch.FetchReqPost(endpoint, path, headers, data),
         response_mapping=response_mapping,
-        cache = cache.CacheFile(one_day * 365),
+        cache = cache.CacheFile(expiration),
         path=path
+    ) .get_data_acting_if_downloaded(               
+        lambda : print("Data downloaded from {}".format(endpoint))
     )
     print(df)
 
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
+    parser = argparse.ArgumentParser(description='Pue flujo fondos')
+    parser.add_argument('-e', '--expiration', type=int, default=one_day*365)
+    parser.add_argument('rest', nargs='*')
+    args = parser.parse_args()
+    symbs = set(args.rest)
+
+    if len(symbs) == 0:
         print("Symb is missing.")
-    for symb in sys.argv[1:]:
-        run(symb)
+    for s in symbs:
+        run(s, args.expiration)
 

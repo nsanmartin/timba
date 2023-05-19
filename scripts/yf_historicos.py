@@ -21,6 +21,8 @@ def run(symb, plot, tail, expiration):
         response_mapping = response_mapping_yf,
         cache = cache.CacheDataFrame(expiration),
         path = path
+    ).get_data_acting_if_downloaded(               
+        lambda : print("Data for {} downloaded from yf".format(symb))
     )
 
     df = df.df.iloc[-tail:]

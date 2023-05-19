@@ -101,14 +101,29 @@ def cache_is_valid(path, expiration_time):
     return expiration >= dt.datetime.now().timestamp()
 
 
+class FetchUrlResponse:
+    def __init__(self, data, data_was_cached):
+        self.data = data
+        self.data_was_cached = data_was_cached
+
+    def get_data_acting_if_downloaded(self, action):
+        if not self.data_was_cached:
+            action()
+        return self.data
 
 
 def fetch_url(fetcher, response_mapping, cache, path):
     if cache.is_valid(path):
-        return response_mapping(cache.get(path))
+        return FetchUrlResponse(
+            data=response_mapping(cache.get(path)),
+            data_was_cached=True
+        )
     else:
         try:
-            return fetcher.get(cache, path, response_mapping)
+            return FetchUrlResponse(
+                data=fetcher.get(cache, path, response_mapping),
+                data_was_cached=False
+            )
         except requests.exceptions.InvalidSchema as e:
             raise RuntimeError("Error fetching url: " + fetcher.url) from e
 

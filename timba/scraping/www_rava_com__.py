@@ -67,16 +67,17 @@ class DolarPricesSupplier(ScrapingSupplier):
         self.url = Url.dolars
 
     def get(self):
-        rava = cache.fetch_url(
+        res = cache.fetch_url(
             fetcher = fetch.FetchReqGet(self.url, headers={}),
             response_mapping = response_mapping_cotizaciones_dolares,
             cache = self.cache_used,
             path = cache.url_to_cache_path(self.url)
         )
 
-        df = pd.DataFrame(rava['body'])
+        df = pd.DataFrame(res.data['body'])
         df = df.drop( df.columns.difference(['ultimo', 'especie']), axis=1)
         df.set_index('especie', inplace=True)
         df.index.name = None
-        return df
+        res.data = df
+        return res
 

@@ -45,15 +45,16 @@ class DolarPricesSupplier(ScrapingSupplier):
         self.url = Url.eco
 
     def get(self):
-        data = cache.fetch_url(
+        res = cache.fetch_url(
             fetcher = fetch.FetchReqGet(Url.eco, headers={}),
             response_mapping = response_mapping_dolar,
             cache=self.cache_used,
             path = cache.url_to_cache_path(self.url)
         )
 
-        df = get_dolar_table(data)
+        df = get_dolar_table(res.data)
         df.set_index('Especie', inplace=True)
         df.index.name=None
         df['Último'] = df['Último'].str.replace(',', '.').astype(float)
-        return df
+        res.data = df
+        return res

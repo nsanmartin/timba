@@ -18,6 +18,8 @@ def run(symbs, tail, expiration):
             response_mapping = idfun,
             cache = dfCache,
             path = cache.url_to_cache_path("yf/download/" + s)
+        ).get_data_acting_if_downloaded(               
+            lambda : print("Data for {} downloaded from yf".format(s))
         )
         for s in symbs
     ]

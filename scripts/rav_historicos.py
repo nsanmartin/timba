@@ -26,6 +26,8 @@ def get_df(symb, response_mapping, expiration=one_day):
         response_mapping = response_mapping,
         cache = cache.CacheFile(expiration),
         path = path
+    ).get_data_acting_if_downloaded(               
+        lambda : print("Data downloaded from {}".format(endpoint))
     )
     return(df)
 

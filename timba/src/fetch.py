@@ -41,7 +41,6 @@ class FetchReq(FetchData):
 
 class FetchReqGet(FetchReq):
     def download(self):
-        print("downloading " + self.url)
         r = requests.get(self.url, headers=self.headers)
         return r
 
@@ -54,7 +53,6 @@ class FetchReqPost(FetchReq):
         self.data = data
 
     def download(self):
-        print("fetching " + str(self.url))
         return requests.post(self.url, data=self.data, headers=self.headers)
 
 
@@ -64,7 +62,6 @@ class FetchDataYf(FetchData):
 
     def get(self, cache, path, data_mapping):
         try:
-            print("downloading " + str(path))
             df = yf.download(self.symbol)
             if df.shape[0] == 0:
                     raise Exception("No data obtained in yf for: " + self.symbol)
