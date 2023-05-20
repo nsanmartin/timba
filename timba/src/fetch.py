@@ -29,8 +29,12 @@ class FetchReq(FetchData):
                     "Response status code was: " + str(r.status_code)
                 )
             content = data_mapping(r.text)
-            cache.set(path, r.text)
-            return content
+            mtime = cache.set(path, r.text)
+            return FetchUrlResponse(
+                data=content,
+                data_was_cached=False,
+                mtime=mtime
+            )
         except Exception as e:
             msg = "error fetching " + self.url + " from source:\n\n" \
                 + curl + "\n" \
@@ -66,8 +70,12 @@ class FetchDataYf(FetchData):
             if df.shape[0] == 0:
                     raise Exception("No data obtained in yf for: " + self.symbol)
             res = data_mapping(df)
-            cache.set(path, df)
-            return res
+            mtime = cache.set(path, df)
+            return FetchUrlResponse(
+                data=res,
+                data_was_cached=False,
+                mtime=mtime
+            )
         except Exception as e:
             msg = "error fetching " + self.symbol + " from yf"
             raise RuntimeError(msg) from e
@@ -75,4 +83,16 @@ class FetchDataYf(FetchData):
             raise RuntimeError(
                 "Error fetching yf.download( " + sumbol +")"
             ) from e
+
+
+class FetchUrlResponse:
+    def __init__(self, data, data_was_cached, mtime):
+        self.data = data
+        self.data_was_cached = data_was_cached
+        self.mtime = mtime
+
+    def get_data_acting_if_downloaded(self, action):
+        if not self.data_was_cached:
+            action()
+        return self.data
 

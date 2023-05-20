@@ -24,14 +24,18 @@ class Cache:
 
     def is_stored(self, path): raise NotImplementedError()
 
-    def is_valid(self, path):
+    def get_stored_time(self, path):
         if not self.is_stored(path):
-            return False
+            return None
 
-        if self.expiration_time is None:
-            return True
-        expiration = path.stat().st_mtime + self.expiration_time
-        return expiration >= dt.datetime.now().timestamp()
+        stored_time = path.stat().st_mtime
+
+        if self.expiration_time \
+            and stored_time + self.expiration_time \
+                >= dt.datetime.now().timestamp():
+            return stored_time
+        else: return None
+
 
 
 class CacheDisc(Cache):
@@ -45,6 +49,7 @@ class CacheFile(CacheDisc):
     def set(self, path, content):
         path.parent.mkdir(exist_ok=True, parents=True)
         path.write_text(content)
+        return path.stat().st_mtime
 
 class CacheDataFrame(CacheDisc):
     def get(self, path):
@@ -53,6 +58,7 @@ class CacheDataFrame(CacheDisc):
     def set(self, path, df):
         path.parent.mkdir(exist_ok=True, parents=True)
         df.to_csv(path)
+        return path.stat().st_mtime
 
 
 class CacheMem(Cache):
@@ -62,19 +68,25 @@ class CacheMem(Cache):
     def is_stored(self, path):
         return path in CacheMem.store
     
-    def is_valid(self, path):
-        if not self.is_stored(path): return False
-        if self.expiration_time is None: return True
+    def get_stored_time(self, path):
+        if not self.is_stored(path): return None
 
-        expiration = CacheMem.expiration[path] + self.expiration_time
-        return expiration >= dt.datetime.now().timestamp()
+        if self.expiration_time \
+            and CacheMem.expiration[path] + self.expiration_time \
+                >= dt.datetime.now().timestamp():
+                return CacheMem.expiration[path] 
+        else:
+            return None
+
 
     def get(self, path):
         return CacheMem.store[path]
 
     def set(self, path, df):
+        stored_time = dt.datetime.now().timestamp()
         CacheMem.store[path] = df
-        CacheMem.expiration[path] = dt.datetime.now().timestamp()
+        CacheMem.expiration[path] = stored_time
+        return stored_time
 
 
 
@@ -91,39 +103,20 @@ def get_headers_for(url):
     return {}
     
 
-def cache_is_valid(path, expiration_time):
-    if not path.exists():
-        return False
 
-    if expiration_time is None:
-        return True
-    expiration = path.stat().st_mtime + expiration_time
-    return expiration >= dt.datetime.now().timestamp()
-
-
-class FetchUrlResponse:
-    def __init__(self, data, data_was_cached):
-        self.data = data
-        self.data_was_cached = data_was_cached
-
-    def get_data_acting_if_downloaded(self, action):
-        if not self.data_was_cached:
-            action()
-        return self.data
 
 
 def fetch_url(fetcher, response_mapping, cache, path):
-    if cache.is_valid(path):
-        return FetchUrlResponse(
+    mtime = cache.get_stored_time(path)
+    if mtime:
+        return fetch.FetchUrlResponse(
             data=response_mapping(cache.get(path)),
-            data_was_cached=True
+            data_was_cached=True,
+            mtime=mtime
         )
     else:
         try:
-            return FetchUrlResponse(
-                data=fetcher.get(cache, path, response_mapping),
-                data_was_cached=False
-            )
+            return fetcher.get(cache, path, response_mapping)
         except requests.exceptions.InvalidSchema as e:
             raise RuntimeError("Error fetching url: " + fetcher.url) from e
 
