@@ -21,12 +21,12 @@ def get_expiration(open_time, close_time, args):
             .get_expiration(time.get_bsas_time(), args.expiration)        \
             if not args.force_download else 0
 
-def get_dolar_table(scrapping_mod, cache_used):
-    return scrapping_mod.DolarPricesSupplier(cache_used)                  \
+def get_dolar_table(scraping_mod, cache_used):
+    return scraping_mod.DolarPricesSupplier(cache_used)                    \
         .get()                                                            \
         .get_data_acting_if_downloaded(               
             lambda : print("Data downloaded from {}".format(
-                scrapping_mod.Url.artous
+                    scraping_mod.Url.artous
                 )
             )
         )

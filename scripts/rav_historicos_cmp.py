@@ -7,7 +7,7 @@ from scripts import rav_historicos
 from timba.src import DataFrame as tdf
 import matplotlib.pyplot as plt
 
-from timba.scraping.www_rava_com__ import \
+from timba.scraping.www_rava_com import \
     response_mapping_historicos as response_mapping
 
 one_day = 60 * 60 * 24

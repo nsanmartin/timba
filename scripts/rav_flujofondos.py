@@ -4,7 +4,7 @@ import pandas as pd
 import json
 from timba.src import cache, fetch
 from timba.src import soup
-from timba.scraping.www_rava_com__ import \
+from timba.scraping.www_rava_com import \
         response_mapping_flujofondos as response_mapping
 
 one_day = 60 * 60 * 24

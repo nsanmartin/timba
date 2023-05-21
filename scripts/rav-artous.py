@@ -2,10 +2,10 @@ import scripts.utils as utils
 import sys
 import pandas as pd
 from timba.src import cache, fetch, time
-import timba.scraping.www_rava_com__ as scrapping_mod
+import timba.scraping.www_rava_com as scraping_mod
 
 def run_cache_file(args, c):
-    df = utils.get_dolar_table(scrapping_mod, c)
+    df = utils.get_dolar_table(scraping_mod, c)
 
     for r in args.rest:
         precio = float(r)

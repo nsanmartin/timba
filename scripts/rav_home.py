@@ -1,6 +1,6 @@
 from timba.src import cache, fetch
 from timba.src import soup
-from timba.scraping.www_rava_com__ import \
+from timba.scraping.www_rava_com import \
     response_mapping_home as response_mapping
 import argparse
 import json

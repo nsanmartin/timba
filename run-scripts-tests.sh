@@ -1,5 +1,6 @@
- ./run_script scripts/rav_artous.py 1 -e0 \
-    && ./run_script scripts/rav_artous.py 1 \
+./run_script scripts/eco-artous.py 1 --testing \
+    && ./run_script scripts/dh-artous.py 1 --testing \
+    && ./run_script scripts/rav-artous.py 1 --testing \
     && ./run_script scripts/rav_flujofondos.py al30 -e0 \
     && ./run_script scripts/rav_flujofondos.py al30 \
     && ./run_script scripts/yf_historicos.py AAPL -e0  \
