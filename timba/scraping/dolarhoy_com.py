@@ -26,7 +26,6 @@ def map_each_dolar(elem):
             {'Especie':a.text + ' venta', 'último': venta},
         ]
     except Exception as e:
-        print(e)
         return None
 
 def reduce_helper(rec, x):
