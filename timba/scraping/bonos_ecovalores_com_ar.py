@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 class Url:
     eco = "https://bonos.ecovalores.com.ar/eco/"
+    artous = eco
 
 
 

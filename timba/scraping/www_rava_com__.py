@@ -6,6 +6,7 @@ import pandas as pd
 
 class Url:
     dolars = 'https://www.rava.com/cotizaciones/dolares'
+    artous = dolars
 
 
 def response_mapping_home(text):
