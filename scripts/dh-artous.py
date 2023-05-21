@@ -15,5 +15,5 @@ if __name__ == '__main__':
     for r in args.rest:
         precio = float(r)
         print(precio)
-        #df['p/d'] = precio/df['Último']
+        df['p/d'] = precio/df['último']
         print(df)

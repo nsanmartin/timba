@@ -1,3 +1,4 @@
+from functools import reduce
 from timba.scraping import  ScrapingSupplier
 from timba.src import soup, fetch, cache
 import pandas as pd
@@ -8,18 +9,32 @@ class Url:
     artous = home
 
 
+def parse_val(text):
+    return  text.str.replace('$', '').astype(float)
 
 def map_each_dolar(elem):
     try:
         a = elem.find("a", attrs={"class": "title"})
-        compra = elem.find( "div", attrs={"class": "compra"})\
-                .find("div",attrs={"class": "val"})
-        venta = elem.find("div", attrs={"class": "venta"})\
-                .find("div",attrs={"class": "val"})
-        #todo return two rows
-        return {'Especie':a.text, 'operación': compra.text, 'precio': venta.text}
-    except Exception:
+        compra = elem.find( "div", attrs={"class": "compra"})           \
+                .find("div",attrs={"class": "val"})                     \
+                .text.replace('$', '')
+        venta = elem.find("div", attrs={"class": "venta"})              \
+                .find("div",attrs={"class": "val"})                     \
+                .text.replace('$', '')
+        return [
+            {'Especie':a.text + ' compra', 'último': compra},
+            {'Especie':a.text + ' venta', 'último': venta},
+        ]
+    except Exception as e:
+        print(e)
         return None
+
+def reduce_helper(rec, x):
+    m = map_each_dolar(x)
+    if m:
+        for r in m: 
+                rec[r['Especie']] = r
+    return rec 
 
 
 def response_mapping_dolar(text):
@@ -33,9 +48,11 @@ def response_mapping_dolar(text):
         )
 
     dls = section.find_all("div", attrs={"class": ["tile", "is-child"]}) 
-    dls = [ r for d in dls if (r := map_each_dolar(d)) is not None ]
-    dls = { (r['Especie'] + r['operación']):r for r in dls }
+    dls = reduce(reduce_helper, dls, {})
     table = pd.DataFrame(dls.values())
+    table.set_index('Especie', inplace=True)
+    table.index.name=None
+    table['último'] = table['último'].astype(float)
     return table
 
 
@@ -53,9 +70,4 @@ class DolarPricesSupplier(ScrapingSupplier):
             cache=self.cache_used,
             path = cache.url_to_cache_path(self.url)
         )
-        df = res.data
-        df.set_index('Especie', inplace=True)
-        df.index.name=None
-        df['precio'] = df['precio'].str.replace('$', '').astype(float)
-        res.data = df
         return res
