@@ -34,6 +34,5 @@ class ExpirationOpened:
             closed -= dt.timedelta(days=now.weekday() - 4)
 
         return max(
-            (now - closed) / dt.timedelta(milliseconds=1),min_expiration
-        )
-
+            (now - closed) / dt.timedelta(milliseconds=1), min_expiration
+        ) if closed else min_expiration
