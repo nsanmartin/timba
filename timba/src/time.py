@@ -24,7 +24,7 @@ class ExpirationOpened:
                 closed = now.replace(minute=0, second=0, microsecond=0)
                 closed -= dt.timedelta(day=3 if now.weekday() == 0 else 1)
             # market
-            elif now.hour <= close_time:
+            elif now.hour <= self.close_time:
                 pass
             # post
             else:

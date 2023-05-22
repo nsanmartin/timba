@@ -81,7 +81,7 @@ class FetchDataYf(FetchData):
             raise RuntimeError(msg) from e
         except requests.exceptions.InvalidSchema as e:
             raise RuntimeError(
-                "Error fetching yf.download( " + sumbol +")"
+                "Error fetching yf.download( " + self.symbol +")"
             ) from e
 
 
