@@ -1,9 +1,14 @@
+'''
+This module includes some data frames classes conforming some
+reaquirements so that we can use their type to make guaranties
+'''
 import os
 import datetime as dt
 import pandas as pd
 import yfinance as yf
 
 def standarize_column_name(name):
+    'Guess the standard name for a column'
     lcase = name.lower()
     if lcase == 'especie':
         return 'Symb'
@@ -21,8 +26,7 @@ def standarize_column_name(name):
         return 'Volume'
     if lcase == 'timestamp':
         return 'Date'
-    else:
-        return name
+    return name
 
 
 def assert_has_column(df, colname):
@@ -30,6 +34,7 @@ def assert_has_column(df, colname):
         "df with no '"+ colname +"'. Names are: " + str(list(df.columns))
 
 def df_standarize_header(*args):
+    'Rename column names in order to be consistent in using the "standard" ones'
     for df in args:
         df.rename(
             columns={
@@ -63,8 +68,7 @@ def df_get_ratio(df, colname, invert=False):
     assert_has_column(df, ycol)
     if invert:
         return df[ycol] / df[xcol]
-    else :
-        return df[xcol] / df[ycol]
+    return df[xcol] / df[ycol]
 
 def df_standarize(df):
     df_standarize_header(df)
@@ -88,11 +92,11 @@ class DataFrameRaw():
             return DataFrameRaw(df)
         if isinstance(df, DataFrameRaw):
             return df
-        else:
-            raise RuntimeError(
-                "Expected df of type pd.DataFrame or " \
-                + "timba.DataFrameRaw"
-            )
+
+        raise RuntimeError(
+            "Expected df of type pd.DataFrame or " \
+            + "timba.DataFrameRaw"
+        )
 
 
     @classmethod
@@ -124,12 +128,11 @@ class DataFrameStdHead(DataFrameRaw):
             df_standarize_header(df.df)
             return DataFrameStdHead(df.df)
 
-        else:
-            return DataFrameStdHead.fromDataFrame(
-                DataFrameRaw.fromDataFrame(df)
-            )
+        return DataFrameStdHead.fromDataFrame(
+            DataFrameRaw.fromDataFrame(df)
+        )
 
-            
+
     @classmethod
     def fromFilename(cls, fname):
         return cls.fromDataFrame(pd.read_csv(fname))
@@ -145,15 +148,15 @@ class DataFrameDateIx(DataFrameStdHead):
     def fromDataFrame(df):
         if isinstance(df, DataFrameDateIx):
             return df
-        elif isinstance(df, DataFrameStdHead):
+        if isinstance(df, DataFrameStdHead):
             if df.df.index.name != 'Date':
                 df_map_time(df.df)
                 df_set_index_to_time(df.df)
             return DataFrameDateIx(df.df)
-        else:
-            return DataFrameDateIx.fromDataFrame(
-                DataFrameStdHead.fromDataFrame(df)
-            )
+
+        return DataFrameDateIx.fromDataFrame(
+            DataFrameStdHead.fromDataFrame(df)
+        )
 
     @staticmethod
     def fromDateIndexed(df, symb=None):
@@ -191,7 +194,7 @@ class DataFrameSymbCmp(DataFrameRaw):
     @classmethod
     def fromDirectory(cls, dirname):
         fnames = [ dirname + f for f in os.listdir(dirname) if f.endswith(".csv") ]
-        return cls.fromDataFrameList([pd.read_csv(f) for f in fnames]) 
+        return cls.fromDataFrameList([pd.read_csv(f) for f in fnames])
 
 
     def getRatiosBetween(self, other):
@@ -216,5 +219,3 @@ class DataFrameSymbCmp(DataFrameRaw):
                 newcolnames.append(c_i + "/" + c_j)
 
         return DataFrameSymbCmp(pd.concat(newcols, axis=1, keys=newcolnames))
-
-
