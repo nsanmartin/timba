@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 class Url:
     eco = "https://bonos.ecovalores.com.ar/eco/"
     artous = eco
+    bonos_listado = eco + "listado.php"
 
 
 
@@ -16,6 +17,16 @@ def map_each_dolar(elem):
         return pd.DataFrame(body, columns=header)
     except ValueError:
         return None
+
+
+def response_mapping_bonos_listado(text):
+    html = BeautifulSoup(text, "lxml")
+    table = html.find("table", attrs={"class": "tablalistado"})
+    if not table:
+        raise RuntimeError(
+            "Incorrect class attr for table: {}.".format("tablapanel")
+        )
+    return map_each_dolar(table)
 
 
 def response_mapping_dolar(text):
@@ -47,7 +58,7 @@ class DolarPricesSupplier(ScrapingSupplier):
 
     def get(self):
         res = cache.fetch_url(
-            fetcher = fetch.FetchReqGet(Url.eco, headers={}),
+            fetcher = fetch.FetchReqGet(self.url, headers={}),
             response_mapping = response_mapping_dolar,
             cache=self.cache_used,
             path = cache.url_to_cache_path(self.url)
@@ -57,5 +68,46 @@ class DolarPricesSupplier(ScrapingSupplier):
         df.set_index('Especie', inplace=True)
         df.index.name=None
         df['Último'] = df['Último'].str.replace(',', '.').astype(float)
+        res.data = df
+        return res
+
+
+class BondsPricesSupplier(ScrapingSupplier):
+    def __init__(self, cache_used):
+        super().__init__(cache_used)
+        self.url = Url.bonos_listado
+
+    def get(self):
+        res = cache.fetch_url(
+            fetcher = fetch.FetchReqGet(self.url, headers={}),
+            response_mapping = response_mapping_bonos_listado,
+            cache=self.cache_used,
+            path = cache.url_to_cache_path(self.url)
+        )
+
+        df = res.get_data_acting_if_downloaded(lambda: None)
+        #df = df[['Título', 'Precio']]
+        df.drop(
+            columns=[
+                'Nombre',
+                'Tipo',
+                'Vencimiento',
+                'Próx. Vto.',
+                'Paridad',
+                'Int. Corrido',
+                'Var %',
+                'VT',
+                'PPV'
+            ],
+            inplace=True
+        )
+        df.set_index('Título', inplace=True)
+        df.index.name=None
+        df['Precio'] = df['Precio']\
+                .str.replace('.', '')\
+                .str.replace(',', '.')\
+                .astype(float)
+
+        df.dropna(inplace=True)
         res.data = df
         return res

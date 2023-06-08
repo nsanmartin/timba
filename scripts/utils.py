@@ -30,3 +30,13 @@ def get_dolar_table(scraping_mod, cache_used):
                 )
             )
         )
+
+def get_bonds_table (scraping_mod, cache_used):
+    return scraping_mod.BondsPricesSupplier(cache_used)                    \
+        .get()                                                            \
+        .get_data_acting_if_downloaded(               
+            lambda : print("Bonds data downloaded from {}".format(
+                    scraping_mod.Url.bonos_listado
+                )
+            )
+        )

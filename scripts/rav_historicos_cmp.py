@@ -24,12 +24,21 @@ def run(symbs, tail, expiration):
     ratios =  df.getRatios()
     x = ratios.df.iloc[-tail:]
     x.plot()
-    mn = x.min()[0]
-    mx = x.max()[0]
-    plt.axhline(mn)
-    plt.axhline(mx)
-    print("tail:\n{}".format(x.tail()))
-    print("min: {}, max: {}.".format(mn, mx))
+    if len(symbs) == 2:
+        mn = x.min()[0]
+        mx = x.max()[0]
+        mean = x.mean()[0]
+        sd = x.std()[0]
+        last = x.iloc[-1,0]
+        z = (last-mean)/sd
+        plt.axhline(mn)
+        plt.axhline(mx)
+        plt.axhline(last)
+        print("tail:\n{}".format(x.tail()))
+        print(
+            "min: {:.3f}, max: {:.3f}, mean: {:.3f}, sd: {:.3f}, Z: {:.3f}."\
+            .format(mn, mx, mean, sd, z)
+        )
     plt.show()
 
 
