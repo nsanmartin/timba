@@ -1,11 +1,12 @@
+from collections import OrderedDict
+from scripts import rav_historicos, utils
+from timba.src import DataFrame as tdf
+from timba.src import cache
 import argparse
 import json
+import matplotlib.pyplot as plt
 import pandas as pd
 import sys
-from timba.src import cache
-from scripts import rav_historicos
-from timba.src import DataFrame as tdf
-import matplotlib.pyplot as plt
 
 from timba.scraping.www_rava_com import \
     response_mapping_historicos as response_mapping
@@ -19,9 +20,16 @@ def run(symbs, tail, expiration):
         for s in symbs
     ]
 
-    df = tdf.DataFrameSymbCmp.fromDataFrameList(ls)
+    df = tdf.DataFrameSymbCmp.fromDataFrameIxList(ls)
     ratios =  df.getRatios()
-    ratios.df.iloc[-tail:].plot()
+    x = ratios.df.iloc[-tail:]
+    x.plot()
+    mn = x.min()[0]
+    mx = x.max()[0]
+    plt.axhline(mn)
+    plt.axhline(mx)
+    print("tail:\n{}".format(x.tail()))
+    print("min: {}, max: {}.".format(mn, mx))
     plt.show()
 
 
@@ -31,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tail', type=int, default=0)
     parser.add_argument('-e', '--expiration', type=int, default=one_day)
     args = parser.parse_args()
-    symbs = set(args.rest)
+    symbs = list(OrderedDict.fromkeys(args.rest))
 
     if len(symbs) < 2:
         print("At least 2 symbols are needed to compare")

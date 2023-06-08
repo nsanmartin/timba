@@ -77,7 +77,7 @@ def df_standarize(df):
 
 def df_concat_cols(colname, dfs):
     series = [ df[colname].rename(df['Symb'][0]) for df in dfs]
-    return pd.concat(series, axis=1)
+    return pd.concat(series, axis=1, join='inner')
 
 
 
@@ -108,7 +108,11 @@ class DataFrameRaw():
         return self.copyDataFrame(self)
 
     def __init__(self, df):
-        assert isinstance(df, pd.DataFrame)
+        if not isinstance(df, pd.DataFrame):
+            raise Exception(
+                "Expected pd.DataFrame but received {}"\
+                .format(df.__class__)
+            )
         self.df = df
 
     def __repr__(self):
@@ -188,6 +192,11 @@ class DataFrameSymbCmp(DataFrameRaw):
     @classmethod
     def fromDataFrameList(cls, dfs):
         dfs = [ DataFrameDateIx.fromDataFrame(df) for df in dfs]
+        dfs = [ x.df for x in dfs]
+        return cls(df_concat_cols('Close', dfs))
+
+    @classmethod
+    def fromDataFrameIxList(cls, dfs):
         dfs = [ x.df for x in dfs]
         return cls(df_concat_cols('Close', dfs))
 

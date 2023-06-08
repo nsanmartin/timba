@@ -25,6 +25,7 @@ class Cache:
     CACHE_PATH = TIMBA_PATH + 'cache/'
 
     def __init__(self, expiration_time):
+        """ctor., expirations_time is in seconds"""
         self.expiration_time = expiration_time
 
     def is_stored(self, path):
