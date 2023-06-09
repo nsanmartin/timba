@@ -2,18 +2,21 @@
 This module includes some data frames classes conforming some
 reaquirements so that we can use their type to make guaranties
 '''
-import os
+import os, re
 import datetime as dt
 import pandas as pd
 import yfinance as yf
+
+class DateColError(Exception):
+    pass
 
 def standarize_column_name(name):
     'Guess the standard name for a column'
     lcase = name.lower()
     if lcase == 'especie':
         return 'Symb'
-    #if lcase == 'fecha':
-    #    return 'Date'
+    if lcase == 'fecha':
+        return 'Date'
     if lcase == 'apertura':
         return 'Open'
     if lcase == 'cierre':
@@ -25,9 +28,16 @@ def standarize_column_name(name):
     if lcase == 'volumen':
         return 'Volume'
     if lcase == 'timestamp':
-        return 'Date'
+        return 'DateTime'
     return name
 
+def assert_has_any_column(df, colnames):
+    for c in colnames:
+        if c in df.columns:
+            return
+    raise RunimeError(
+        "df with no '"+ colname +"'. Names are: " + str(list(df.columns))
+    )
 
 def assert_has_column(df, colname):
     assert colname in df.columns,\
@@ -38,22 +48,61 @@ def df_standarize_header(*args):
     for df in args:
         df.rename(
             columns={
-                k:standarize_column_name(k) for k in df.columns
+                k:standarize_column_name(k) for k in df.columns if standarize_column_name(k) not in df.columns
                 },
             inplace=True
         )
 
+class DateTimeFmt:
+    Ymd_regexp = re.compile('^\d\d\d\d.\d\d.\d\d$')
+    dmY_regexp = re.compile('^\d\d.\d\d.\d\d\d\d$')
+
+    @staticmethod
+    def try_guess(s):
+        if len(s) == 10:
+            if DateTimeFmt.Ymd_regexp.match(s):
+                return '%Y{}%m{}%d'.format(s[4], s[7])
+            if DateTimeFmt.dmY_regexp.match(s):
+                return '%d{}%m{}%Y'.format(s[4], s[7])
+        return None
+
 def df_map_time(df):
-    assert_has_column(df, 'Date')
-    try:
-        df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
-    except ValueError as e:
-        print("Could not map time column (" \
-                + str(e) +"), ignoring. TODO: check column instead")
+    '''
+    TODO: Consider a more systematic approach, v.g. implementing the
+    guess_format function
+    '''
+    if 'DateTime' in df.columns:
+        try:
+            df['DateTime'] = pd.to_datetime(df['DateTime'], unit='s').dt.date
+            return
+        except ValueError as e:
+            pass
+    if 'Date' in df.columns:
+        try:
+            sample = df.at[0,'Date']
+            if isinstance(sample, str):
+                fmt = DateTimeFmt.try_guess(sample)
+                if fmt:
+                    df['Date'] = pd.to_datetime(df['Date'], format=fmt).dt.date
+                    return
+
+            df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
+
+        except ValueError as e:
+            raise DateColError("{}\n{}".format(str(e),df)) from e
+
+        assert_has_any_column(df, ['Date', 'DateTime'])
+
+
 
 def df_set_index_to_time(df):
-    assert_has_column(df, 'Date')
-    df.set_index('Date', inplace=True)
+    if 'Date' in df.columns:
+        df.set_index('Date', inplace=True)
+    elif 'DateTime' in df.columns:
+        df.rename(columns={'DateTime':'Date'}, inplace=True)
+        df.set_index('Date', inplace=True)
+    else:
+        raise RuntimeError("Neither Date not DateTime columns found")
 
 
 def df_merge_on(x, y, colname):

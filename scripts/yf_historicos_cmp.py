@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import argparse
 import json
 import pandas as pd
@@ -30,7 +31,26 @@ def run(symbs, tail, expiration):
     print(ls)
     df = tdf.DataFrameSymbCmp.fromDataFrameList(ls)
     ratios =  df.getRatios()
-    ratios.df.iloc[-tail:].plot()
+    x = ratios.df.iloc[-tail:]
+    x.plot()
+    if len(symbs) == 2:
+        mn = x.min()[0]
+        mx = x.max()[0]
+        mean = x.mean()[0]
+        sd = x.std()[0]
+        last = x.iloc[-1,0]
+        dist = last-mean
+        z = dist/sd
+        plt.axhline(mn)
+        plt.axhline(mx)
+        plt.axhline(mean)
+        plt.axhline(last, c='red')
+        print("tail:\n{}".format(x.tail()))
+        print((
+            "min: {:.3f}, max: {:.3f}, mean: {:.3f}, sd: {:.3f}, Z: {:.3f}"
+            + ", dist: {:.3f}."
+            ).format(mn, mx, mean, sd, z, dist)
+        )
     plt.show()
 
 
@@ -41,7 +61,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tail', type=int, default=0)
     parser.add_argument('-e', '--expiration', type=int, default=one_day)
     args = parser.parse_args()
-    symbs = set(args.rest)
+    symbs = list(OrderedDict.fromkeys(args.rest))
 
     if len(symbs) < 2:
         print("At least 2 symbols are needed to compare")

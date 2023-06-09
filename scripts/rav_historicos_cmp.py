@@ -30,14 +30,17 @@ def run(symbs, tail, expiration):
         mean = x.mean()[0]
         sd = x.std()[0]
         last = x.iloc[-1,0]
-        z = (last-mean)/sd
+        dist = last-mean
+        z = dist/sd
         plt.axhline(mn)
         plt.axhline(mx)
-        plt.axhline(last)
+        plt.axhline(mean)
+        plt.axhline(last, c='red')
         print("tail:\n{}".format(x.tail()))
-        print(
-            "min: {:.3f}, max: {:.3f}, mean: {:.3f}, sd: {:.3f}, Z: {:.3f}."\
-            .format(mn, mx, mean, sd, z)
+        print((
+            "min: {:.3f}, max: {:.3f}, mean: {:.3f}, sd: {:.3f}, Z: {:.3f}"
+            + ", dist: {:.3f}."
+            ).format(mn, mx, mean, sd, z, dist)
         )
     plt.show()
 
@@ -48,7 +51,8 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--tail', type=int, default=0)
     parser.add_argument('-e', '--expiration', type=int, default=one_day)
     args = parser.parse_args()
-    symbs = list(OrderedDict.fromkeys(args.rest))
+    args.rest = list(map(lambda x: x.upper(), OrderedDict.fromkeys(args.rest)))
+    symbs = args.rest
 
     if len(symbs) < 2:
         print("At least 2 symbols are needed to compare")

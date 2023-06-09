@@ -25,11 +25,7 @@ if __name__ == '__main__':
 
         for i,s in enumerate(symbs):
             for t in symbs[i:]:
-                pass
                 ratios.loc[s,t] = df.loc[s,'Precio'] / df.loc[t,'Precio']
-                #ratios.iloc[i,j] = df.iloc[i,0] / df.iloc[j,0]
-                #ratios.iloc[i,j] = df.iloc[s,0] / df.iloc[t,0]
-
 
         ratios = ratios.astype(float).round(3)
         np.fill_diagonal(ratios.values, 1)

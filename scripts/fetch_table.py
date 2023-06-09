@@ -14,11 +14,19 @@ from urllib.parse import urlparse
 def print_help(cmd):
     print("usage: {} URL TABLE_NAME".format(cmd))
 
+<<<<<<< Updated upstream:scripts/fetch_table.py
 def run(url, table_name):
     print("url: {} table: {}".format(url, table_name))
     tab = table.Tabla(url, None, None, table_name,  "thead", "tbdoy")
     data = tab.fetch(0)
 
+=======
+## def run(url, table_name):
+##     print("url: {} table: {}".format(url, table_name))
+##     tab = table.Tabla(url, None, None, table_name,  "thead", "tbdoy")
+##     data = tab.fetch(0)
+##     print(data)
+>>>>>>> Stashed changes:scripts/table.py
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fetch a table')
@@ -44,6 +52,12 @@ if __name__ == '__main__':
         ncols=args.ncols
     )
     
+<<<<<<< Updated upstream:scripts/fetch_table.py
     headers = cache.get_headers_for(urlparse(tab.get_url()).netloc)
     data = tab.fetch(args.header_index, headers, args.expiration)
     print(data)
+=======
+    #print(tab.get_url())
+    data = tab.fetch(args.header_index)
+    #print(data)
+>>>>>>> Stashed changes:scripts/table.py

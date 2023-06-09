@@ -33,7 +33,7 @@ class Cache:
         raise NotImplementedError()
 
     def get_stored_time(self, path):
-        'If stored, return its modification time. If not, None'
+        'If stored and still valid, return its modification time. If not, None'
         if not self.is_stored(path):
             return None
 

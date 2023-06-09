@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 from timba.src import DataFrame as tdf
 
-standard_header = [ 'Symb', 'Open', 'High', 'Low', 'Close', 'Volume', 'Date' ]
+standard_header = [ 'Symb', 'Open', 'High', 'Low', 'Close', 'Volume', 'DateTime' ]
 
 class TestDataFrame(unittest.TestCase):
     def test_ctors_headers(self):

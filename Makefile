@@ -10,3 +10,6 @@ tags: $(PYSRC) $(PYSCRIPTS)
 lint:
 	find . \( -path ./venv -o -path ./build \) -prune -o -name "*.py" \
 		-exec pylint {} \;
+
+clean:
+	find -name "*.pyc" -delete
