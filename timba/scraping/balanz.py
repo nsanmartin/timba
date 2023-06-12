@@ -1,11 +1,8 @@
 import pandas as pd
+import numpy as np
 from collections import namedtuple
 from itertools import takewhile, dropwhile, islice
 
-#decimal_regexp = re.compile('^(\d+(?:\.\d+)?)$')
-#
-#def is_num_es(s):
-#    return s and decimal_regexp.match(s.replace('.', ''))
 
 def skipSpace(lines):
     return dropwhile(lambda s: s.isspace(), lines)
@@ -36,27 +33,56 @@ def skip_to_next_activo(it):
     it, _ = parseNext(it)
     return it
 
+header_row = (
+    "Especie",
+    "Descripción", "Cantidad", "Garantía", "Precio", "Valor", "Actual"
+)
+
+def parse_dec(s):
+    return s.replace(".", "").replace(",", ".")
+
+def parseActivosRow(row):
+    match row.split():
+        case ("Especie", desc, cant, garantia, precio, valor, actual):
+            return None
+        case (ticker, *desc, cant, garantia, monp, precio, monv, valoract):
+            return (
+                ticker,
+                parse_dec(cant),
+                monp+monv,
+                parse_dec(precio),
+                parse_dec(valoract)
+            )
+        case ('Préstamos', '-', 'Alquiler'):
+            return None
+        case _:
+            raise Exception (f"not match: '{row}'")
+
+
 def parseActivoAndNext(it):
     it, n = parseNext(it)
     if n in asset_names:
-        #print(f'parsing n: {n}')
         act = list(takewhile(is_not_end_of_activo, it))
-        #print(f'read: {"".join(act)}')
+        act = [
+            parsed for r in act if (parsed := parseActivosRow(r)) is not None
+        ]
+        df = pd.DataFrame(
+            act,
+            columns=("especie", "n", "moneda", "precio", "va"),
+        )
         it = skip_to_next_activo(it)
-        return it, act, n
+        return it, df, n
     return it, None, n
 
 def parseNActivos(it):
     activos = []
     while True:
         it, act, n = parseActivoAndNext(it)
-        if not act:
+        if not isinstance(act, pd.DataFrame):
             return it, activos
-        print(''.join(act))
-        activos.append(list(act))
+        activos.append(act)
         if is_end_of_all_activos(n):
             it, _ = parseNext(it)
-            print(n)
             return it, activos
 
 def skipToTotal(it):
@@ -82,9 +108,19 @@ def parseResumen(it):
     it = skipToActivos(it)
     it, acts = parseNActivos(it)
     
-    acts = '----\n'.join([ "".join(a) for a in acts ])
     print(f'TOTAL: {total}')
-    print(f'ACTIVOS: {acts}')
+    df = pd.concat(acts)
+    df['n'] = pd.to_numeric(df['n'])
+    df['precio'] = pd.to_numeric(df['precio'])
+    df['va'] = pd.to_numeric(df['va'])
+
+    va = (df['n'] * df['precio']).round()
+    va = abs(va - df['va'])
+    df['va2'] = va
+
+    pesos = df['va'][df['moneda'] == '$$'].sum()
+    dolares = df['va'][df['moneda'] == 'USDUSD'].sum()
+    print(f'pesos: {pesos}, dolares: {dolares}')
     return it
 
 
@@ -93,5 +129,4 @@ def test():
         it = parseResumen(it)
 
 test()
-
 
