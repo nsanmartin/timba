@@ -6,6 +6,7 @@ from timba.src import cache, fetch
 from scripts import rav_historicos
 from timba.src import DataFrame as tdf
 import matplotlib.pyplot as plt
+import timba as tb
 
 one_day = 60 * 60 * 24
 
