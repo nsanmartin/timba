@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from scripts import rav_historicos, utils
-from timba.src import DataFrame as tdf
+from timba.src import data_frame as tdf
 from timba.src import cache
 import argparse
 import json

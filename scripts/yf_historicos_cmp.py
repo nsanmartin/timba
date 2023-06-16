@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import sys
 from timba.src import cache, fetch
-from timba.src import DataFrame as tdf
+from timba.src import data_frame as tdf
 import matplotlib.pyplot as plt
 
 one_day = 60 * 60 * 24

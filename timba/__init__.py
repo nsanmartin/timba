@@ -1,1 +1,1 @@
-from timba.src import DataFrame, bz, time
+from timba.src import data_frame, bz, time

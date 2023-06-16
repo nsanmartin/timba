@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 from timba.src import cache, fetch
 from scripts import rav_historicos
-from timba.src import DataFrame as tdf
+from timba.src import data_frame as tdf
 import matplotlib.pyplot as plt
 import timba as tb
 

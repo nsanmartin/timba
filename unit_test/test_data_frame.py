@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from timba.src import DataFrame as tdf
+from timba.src import data_frame as tdf
 
 standard_header = [ 'Symb', 'Open', 'High', 'Low', 'Close', 'Volume', 'DateTime' ]
 

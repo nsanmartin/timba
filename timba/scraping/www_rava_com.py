@@ -1,5 +1,5 @@
 from timba.scraping import  ScrapingSupplier
-from timba.src import DataFrame as tdf
+from timba.src import data_frame as tdf
 from timba.src import soup, fetch, cache
 from timba.src import time as tb_time
 from urllib.parse import urlparse

@@ -1,20 +1,20 @@
-from timba.src import DataFrame
+from timba.src import data_frame
 import pandas as pd
 
-class DataFrameBz(DataFrame.DataFrameDateIx):
+class DataFrameBz(data_frame.DataFrameDateIx):
     def __init__(self, dfix):
-        assert isinstance(dfix, DataFrame.DataFrameDateIx)
+        assert isinstance(dfix, data_frame.DataFrameDateIx)
         self.df = dfix.df
 
     @classmethod
     def fromDataFrame(cls, df):
-        return cls(DataFrame.DataFrameDateIx.fromDataFrame(df))
+        return cls(data_frame.DataFrameDateIx.fromDataFrame(df))
 
     @classmethod
     def fromFile(cls, fname):
         assert isinstance(fname, str), "fname must be a string"
         df = pd.read_csv(fname)
-        dfix = DataFrame.DataFrameDateIx.fromDataFrame(df)
+        dfix = data_frame.DataFrameDateIx.fromDataFrame(df)
         return cls.fromDataFrame(dfix)
 
     def ticker(self, ticker):
@@ -56,12 +56,12 @@ class DataFrameBzMovs(DataFrameBz):
 def movs_as_date_indexed(fname):
     assert isinstance(fname, str), "fname must be a string"
     df = pd.read_csv(fname)
-    boletos = DataFrame.DataFrameDateIx.fromDataFrame(df)
+    boletos = data_frame.DataFrameDateIx.fromDataFrame(df)
     return boletos
 
 def boletos_as_date_indexed(fname):
     df = pd.read_csv(fname)
-    boletos = DataFrame.DataFrameDateIx.fromDataFrame(df)
+    boletos = data_frame.DataFrameDateIx.fromDataFrame(df)
     boletos.drop('Symb', axis=1)
     return boletos
 
