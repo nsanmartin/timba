@@ -50,6 +50,37 @@ def get_dolar_table(data):
             pass
     raise RuntimeError("Table not found in ecovalores")
 
+def filter_bonos_tables(dfs):
+    return pd.concat([
+        df.dropna() for df in dfs
+        if isinstance(df, pd.DataFrame)
+        and ('AL30' in df.iloc[:,0].unique()
+            or 'GD30D' in df.iloc[:,0].unique())
+    ])
+
+
+
+class DolarMepSupplier(ScrapingSupplier):
+    def __init__(self, cache_used):
+        super().__init__(cache_used)
+        self.url = Url.eco
+
+    def get(self):
+        res = cache.fetch_url(
+            fetcher = fetch.FetchReqGet(self.url, headers={}),
+            response_mapping = response_mapping_dolar,
+            cache=self.cache_used,
+            path = cache.url_to_cache_path(self.url)
+        )
+
+        df = filter_bonos_tables(res.data)
+        df.set_index('Especie', inplace=True)
+        df.index.name=None
+        df.replace('\.', '', regex=True, inplace=True)
+        df.replace(',', '.', regex=True, inplace=True)
+        df = df.astype(float)
+        res.data = df
+        return res
 
 class DolarPricesSupplier(ScrapingSupplier):
     def __init__(self, cache_used):

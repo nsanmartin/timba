@@ -1,12 +1,16 @@
 from timba.scraping import  ScrapingSupplier
 from timba.src import DataFrame as tdf
 from timba.src import soup, fetch, cache
+from timba.src import time as tb_time
+from urllib.parse import urlparse
 import json
+import datetime as dt
 import pandas as pd
 
 class Url:
     dolars = 'https://www.rava.com/cotizaciones/dolares'
     artous = dolars
+    historicos = "https://clasico.rava.com/lib/restapi/v3/publico/cotizaciones/historicos"
 
 
 def response_mapping_home(text):
@@ -81,4 +85,30 @@ class DolarPricesSupplier(ScrapingSupplier):
         df.index.name = None
         res.data = df
         return res
+
+def get_historicos(symb, expiration=tb_time.one_day):
+    data = {
+        'especie': symb,
+        'fecha_inicio': "0000-00-00",
+        'fecha_fin': dt.datetime.today().strftime("%Y-%m-%d")
+    }
+    data.update(cache.get_data_for(urlparse(Url.historicos).netloc))
+
+    path = cache.url_to_cache_path(Url.historicos + "/" + symb)
+    df = cache.fetch_url(
+        fetcher = fetch.FetchReqPost(Url.historicos, path, {}, data),
+        response_mapping = response_mapping_historicos,
+        cache = cache.CacheFile(expiration),
+        path = path
+    ).get_data_acting_if_downloaded(               
+        lambda : print("Data downloaded from {}".format(Url.historicos))
+    )
+    return(df)
+
+def dolar_mep(name):
+    name = name.upper()
+    p = get_historicos(name)
+    d = get_historicos(name + 'D')
+
+    return p.df['Close'] / d.df['Close'], p, d
 

@@ -15,6 +15,8 @@ def standarize_column_name(name):
     lcase = name.lower()
     if lcase == 'especie':
         return 'Symb'
+    if lcase == 'concertacion':
+        return 'Date'
     if lcase == 'fecha':
         return 'Date'
     if lcase == 'apertura':

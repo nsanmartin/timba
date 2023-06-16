@@ -1,3 +1,4 @@
+from scripts import utils
 from timba.src import cache, fetch
 from timba.scraping.www_rava_com import \
     response_mapping_historicos as response_mapping
@@ -46,12 +47,9 @@ epilog = "access_token must be set in timba's dir " \
         + "(default is $HOME/.timba/data/clasico.rava.com)."
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=description, epilog=epilog)
-    parser.add_argument('-p', '--plot', action='store_true')
-    parser.add_argument('rest', nargs='+')
-    parser.add_argument('-t', '--tail', type=int, default=0)
-    parser.add_argument('-e', '--expiration', type=int, default=one_day)
+    parser = utils.CliHistArgs(description)
     args = parser.parse_args()
+    print(args.dates)
 
     for symb in args.rest:
         run(symb, args.plot, args.tail, args.expiration)
