@@ -10,22 +10,8 @@ import timba as tb
 
 one_day = 60 * 60 * 24
 
-def response_mapping_yf(df):
-    df = tdf.DataFrameDateIx.fromDataFrame(df)
-    return df
-
 def run(symb, plot, tail, expiration):
-    path = cache.url_to_cache_path("yf/download/" + symb)
-
-    df = cache.fetch_url(
-        fetcher = fetch.FetchDataYf(symb),
-        response_mapping = response_mapping_yf,
-        cache = cache.CacheDataFrame(expiration),
-        path = path
-    ).get_data_acting_if_downloaded(               
-        lambda : print("Data for {} downloaded from yf".format(symb))
-    )
-
+    df = tb.yf.get_cached(symb)
     df = df.df.iloc[-tail:]
 
     if plot:

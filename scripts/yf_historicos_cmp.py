@@ -6,24 +6,14 @@ import sys
 from timba.src import cache, fetch
 from timba.src import data_frame as tdf
 import matplotlib.pyplot as plt
+import timba as tb
 
 one_day = 60 * 60 * 24
 
 def idfun(x): return x
 
 def run(symbs, tail, expiration):
-    dfCache = cache.CacheDataFrame(expiration)
-    ls = [
-        cache.fetch_url(
-            fetcher = fetch.FetchDataYf(s),
-            response_mapping = idfun,
-            cache = dfCache,
-            path = cache.url_to_cache_path("yf/download/" + s)
-        ).get_data_acting_if_downloaded(               
-            lambda : print("Data for {} downloaded from yf".format(s))
-        )
-        for s in symbs
-    ]
+    ls = [ tb.yf.get_cached(s).df for s in symbs ]
 
     for df,symb in zip(ls,symbs):
         df['Symb'] = symb
