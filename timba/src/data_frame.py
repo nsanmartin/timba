@@ -75,7 +75,8 @@ def df_map_time(df):
     '''
     if 'DateTime' in df.columns:
         try:
-            df['DateTime'] = pd.to_datetime(df['DateTime'], unit='s').dt.date
+            df['DateTime'] = pd.to_datetime(df['DateTime'], unit='s')
+            #df['DateTime'] = pd.to_datetime(df['DateTime'], unit='s').dt.date
             return
         except ValueError as e:
             pass
@@ -85,10 +86,10 @@ def df_map_time(df):
             if isinstance(sample, str):
                 fmt = DateTimeFmt.try_guess(sample)
                 if fmt:
-                    df['Date'] = pd.to_datetime(df['Date'], format=fmt).dt.date
+                    df['Date'] = pd.to_datetime(df['Date'], format=fmt)
                     return
 
-            df['Date'] = pd.to_datetime(df['Date'], unit='s').dt.date
+            df['Date'] = pd.to_datetime(df['Date'], unit='s')
 
         except ValueError as e:
             raise DateColError("{}\n{}".format(str(e),df)) from e
